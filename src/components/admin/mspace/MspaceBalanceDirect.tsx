@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useMspaceDirectService } from '@/hooks/mspace/useMspaceDirectService';
 import { MspaceCredentials } from '@/services/mspaceDirectApi';
+import { NetworkIssueNotice } from './NetworkIssueNotice';
 
 export function MspaceBalanceDirect() {
   const [useManual, setUseManual] = useState(false);
