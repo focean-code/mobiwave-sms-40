@@ -124,6 +124,10 @@ export function MspaceCreditsManagerSimple() {
         </div>
       </div>
 
+      {showServiceNotice && (
+        <ServiceNotice onDismiss={() => setShowServiceNotice(false)} />
+      )}
+
       {/* Manual Credentials Input */}
       <Card>
         <CardHeader>
