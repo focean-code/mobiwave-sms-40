@@ -203,7 +203,7 @@ export function MspaceBalanceDirect() {
               </div>
 
               <Button
-                onClick={() => checkBalance.mutate()}
+                onClick={handleBalanceCheck}
                 disabled={isLoading}
                 className="w-full"
                 size="lg"
