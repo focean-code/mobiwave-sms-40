@@ -5,18 +5,22 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
 };
 
 // Import the decryption function
 const ENCRYPTION_KEY_B64 = Deno.env.get("API_KEY_ENCRYPTION_KEY_B64") ?? "";
-if (!ENCRYPTION_KEY_B64) {
-  throw new Error(
-    "API_KEY_ENCRYPTION_KEY_B64 environment variable is required for encryption/decryption.",
-  );
+let ENCRYPTION_KEY: Uint8Array | null = null;
+
+if (ENCRYPTION_KEY_B64) {
+  try {
+    ENCRYPTION_KEY = Uint8Array.from(atob(ENCRYPTION_KEY_B64), (c) =>
+      c.charCodeAt(0),
+    );
+  } catch (error) {
+    console.error("Failed to decode encryption key:", error);
+  }
 }
-const ENCRYPTION_KEY = Uint8Array.from(atob(ENCRYPTION_KEY_B64), (c) =>
-  c.charCodeAt(0),
-);
 
 // Decrypts base64(iv):base64(ciphertext) to string
 async function decryptApiKey(encrypted: string): Promise<string> {
