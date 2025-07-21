@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
@@ -69,7 +68,12 @@ export const useMspaceAccounts = () => {
         
         if (error) {
           console.error('MSpace accounts error:', error);
-          
+
+          // Handle CORS and network errors specifically
+          if (error.message && error.message.includes('Failed to send a request to the Edge Function')) {
+            throw new Error('Edge function is currently unavailable. This may be due to a deployment issue or CORS configuration. Please try again later or contact support.');
+          }
+
           // Try to parse the error response for more details
           try {
             const errorData = JSON.parse(error.message);
