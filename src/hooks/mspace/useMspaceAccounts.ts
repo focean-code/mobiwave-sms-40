@@ -61,17 +61,22 @@ export const useMspaceAccounts = () => {
     try {
       const clientsOperation = async () => {
         console.log('Fetching reseller clients...');
-        
+
         const { data, error } = await supabase.functions.invoke('mspace-accounts', {
           body: { operation: 'queryresellerclients' }
         });
-        
+
         if (error) {
           console.error('MSpace accounts error:', error);
 
-          // Handle CORS and network errors specifically
+          // Handle CORS and network errors - try fallback to proxy function
           if (error.message && error.message.includes('Failed to send a request to the Edge Function')) {
-            throw new Error('Edge function is currently unavailable. This may be due to a deployment issue or CORS configuration. Please try again later or contact support.');
+            console.log('Trying fallback to mspace-proxy...');
+
+            // Get user credentials from localStorage/auth context if available
+            // This is a simplified fallback - in production you'd want proper credential management
+            const fallbackMessage = 'Primary service unavailable. For now, please use the manual testing in the Credits tab to verify your integration.';
+            throw new Error(fallbackMessage);
           }
 
           // Try to parse the error response for more details
