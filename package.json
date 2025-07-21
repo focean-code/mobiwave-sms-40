@@ -13,6 +13,9 @@
     "generate-types": "npx supabase gen types typescript --project-id bhnjecmsalnqxgociwuk --schema public > src/integrations/supabase/types.ts"
   },
   "dependencies": {
+    "@carbon/icons-react": "^11.63.0",
+    "@carbon/react": "^1.87.0",
+    "@carbon/styles": "^1.86.0",
     "@hookform/resolvers": "^3.9.0",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-alert-dialog": "^1.1.1",
