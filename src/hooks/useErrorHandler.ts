@@ -1,4 +1,3 @@
-
 /**
  * @deprecated This hook is deprecated and will be removed in a future version.
  * Please use useEnhancedErrorHandler instead for all error handling functionality.
@@ -43,12 +42,20 @@ export const useErrorHandler = () => {
 
   const handleRetry = async <T>(operation: () => Promise<T>, maxRetries: number = 2): Promise<T> => {
     let lastError: any;
-    
+
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
         return await operation();
-      } catch (error) {
+      } catch (error: any) {
         lastError = error;
+
+        // Don't retry for CORS/network errors as they're unlikely to resolve quickly
+        if (error?.message?.includes('Failed to send a request to the Edge Function') ||
+            error?.message?.includes('CORS') ||
+            error?.message?.includes('fetch')) {
+          throw error;
+        }
+
         if (attempt < maxRetries) {
           // Wait before retrying
           await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
