@@ -13,6 +13,7 @@ import { RefreshCw, CreditCard, Key, User, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ServiceNotice } from "./ServiceNotice";
 import { MspaceAPITester } from "./MspaceAPITester";
 
 export function MspaceCreditsManagerSimple() {
