@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import { MspaceCreditsManager } from "./MspaceCreditsManager";
 import { MspaceResellerClients } from "./MspaceResellerClients";
+import { MspaceResellerClientsDirect } from "./MspaceResellerClientsDirect";
+import { MspaceDirectTester } from "./MspaceDirectTester";
 import { MspaceAPITester } from "./MspaceAPITester";
 import { MspaceIntegrationStatus } from "./MspaceIntegrationStatus";
 import { SubUsersManager } from "./SubUsersManager";
