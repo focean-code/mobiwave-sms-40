@@ -210,7 +210,7 @@ export function MspaceIntegrationStatus() {
           <CardContent className="space-y-2">
             <div className="flex gap-2">
               <Button
-                onClick={() => checkBalance.mutate()}
+                onClick={handleBalanceCheck}
                 disabled={checkBalance.isPending}
                 variant="outline"
                 size="sm"
