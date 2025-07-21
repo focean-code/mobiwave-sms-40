@@ -86,14 +86,23 @@ export const useMspaceDirectService = (options: UseMspaceDirectServiceOptions = 
       return result;
     },
     onSuccess: (data) => {
+      const source = data.source === 'direct_api' ? 'direct API' : 'proxy fallback';
       toast.success(`✅ Balance: ${data.balance.toLocaleString()} ${data.currency}`, {
-        description: 'Retrieved via direct API'
+        description: `Retrieved via ${source}`
       });
     },
     onError: (error: any) => {
       console.error('Balance check error:', error);
+
+      let description = 'Direct API call failed';
+      if (error.message.includes('Proxy request failed')) {
+        description = 'Both direct API and proxy failed';
+      } else if (error.message.includes('CORS')) {
+        description = 'Trying proxy fallback...';
+      }
+
       toast.error(`❌ Balance check failed: ${error.message}`, {
-        description: 'Direct API call'
+        description
       });
     },
   });
@@ -235,7 +244,7 @@ export const useMspaceDirectService = (options: UseMspaceDirectServiceOptions = 
     },
     onError: (error: any) => {
       console.error('Credentials test error:', error);
-      toast.error(`❌ Credentials test failed: ${error.message}`, {
+      toast.error(`�� Credentials test failed: ${error.message}`, {
         description: 'Direct API call'
       });
     },
