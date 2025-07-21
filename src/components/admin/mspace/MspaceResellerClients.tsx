@@ -54,6 +54,13 @@ export function MspaceResellerClients() {
           error.message?.includes('credentials not found')) {
         setCredentialsError(true);
         toast.error("Please configure your Mspace API credentials first");
+      } else if (error.message?.includes('Failed to send a request to the Edge Function') ||
+                 error.message?.includes('Failed to fetch')) {
+        setNetworkError(error.message);
+        setShowNetworkNotice(true);
+        toast.error("Network connectivity issues detected", {
+          description: "Please see the notice above for solutions."
+        });
       } else if (error.message?.includes('Edge function is currently unavailable') ||
                  error.message?.includes('Primary service unavailable')) {
         setShowServiceNotice(true);
