@@ -83,9 +83,19 @@ export function MspaceCreditsManagerSimple() {
       });
     } catch (error: any) {
       console.error("Manual test failed:", error);
-      toast.error(`❌ Test failed: ${error.message}`, {
-        description: "Use the API tester tools below for external testing",
-      });
+
+      // Show service notice for edge function issues
+      if (error.message?.includes('service is currently unavailable') ||
+          error.message?.includes('Failed to send a request to the Edge Function')) {
+        setShowServiceNotice(true);
+        toast.error("❌ Backend service temporarily unavailable", {
+          description: "Please see the notice above for alternative testing options",
+        });
+      } else {
+        toast.error(`❌ Test failed: ${error.message}`, {
+          description: "Use the API tester tools below for external testing",
+        });
+      }
     } finally {
       setIsTestingManual(false);
     }
