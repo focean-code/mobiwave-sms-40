@@ -143,6 +143,16 @@ export function MspaceResellerClientsDirect() {
         </Button>
       </div>
 
+      {/* Network Issue Notice */}
+      {showNetworkNotice && (
+        <NetworkIssueNotice
+          error={networkError}
+          onRetry={loadClients}
+          onDismiss={() => setShowNetworkNotice(false)}
+          isRetrying={isLoading}
+        />
+      )}
+
       {/* Credentials Source */}
       <Card>
         <CardHeader>
