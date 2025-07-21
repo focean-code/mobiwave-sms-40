@@ -12,6 +12,7 @@ import {
   Key,
 } from "lucide-react";
 import { useMspaceIntegration } from "@/hooks/mspace/useMspaceIntegration";
+import { ServiceNotice } from "./ServiceNotice";
 
 export function MspaceIntegrationStatus() {
   const {
