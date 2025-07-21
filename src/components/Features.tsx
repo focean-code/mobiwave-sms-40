@@ -1,69 +1,86 @@
-
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MessageSquare, Zap, Shield, BarChart3, Globe, Clock } from 'lucide-react';
+import { Grid, Column, Tile } from '@carbon/react';
+import { 
+  Chat,
+  Lightning,
+  Security,
+  Analytics,
+  Earth,
+  Time
+} from '@carbon/icons-react';
 
 export const Features = () => {
   const features = [
     {
-      icon: MessageSquare,
+      icon: Chat,
       title: "Multi-Channel Messaging",
       description: "Send SMS, emails, and push notifications from one unified platform."
     },
     {
-      icon: Zap,
+      icon: Lightning,
       title: "Lightning Fast",
       description: "Messages delivered instantly with our high-performance infrastructure."
     },
     {
-      icon: Shield,
+      icon: Security,
       title: "Secure & Reliable",
       description: "Enterprise-grade security with 99.9% uptime guarantee."
     },
     {
-      icon: BarChart3,
+      icon: Analytics,
       title: "Advanced Analytics",
       description: "Track delivery rates, engagement, and campaign performance in real-time."
     },
     {
-      icon: Globe,
+      icon: Earth,
       title: "Global Reach",
       description: "Send messages worldwide with local carrier connections."
     },
     {
-      icon: Clock,
+      icon: Time,
       title: "Scheduled Sending",
       description: "Schedule messages for optimal delivery times across time zones."
     }
   ];
 
   return (
-    <section id="features" className="py-12 sm:py-16 md:py-20 bg-white">
-      <div className="container mx-auto px-3 sm:px-4">
-        <div className="text-center mb-10 sm:mb-16">
-          <h2 className="text-2xl xs:text-3xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
-            Everything you need to connect
-          </h2>
-          <p className="text-base sm:text-xl text-gray-600 max-w-2xl mx-auto">
-            Powerful features designed to help you reach your audience effectively and efficiently.
-          </p>
-        </div>
-        <div className="grid grid-cols-1 gap-5 sm:gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {features.map((feature, index) => (
-            <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-shadow">
-              <CardHeader>
-                <feature.icon className="w-10 h-10 sm:w-12 sm:h-12 text-blue-600 mb-3 sm:mb-4" />
-                <CardTitle className="text-lg sm:text-xl">{feature.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-gray-600 text-sm sm:text-base">
-                  {feature.description}
-                </CardDescription>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
+    <section id="features" className="py-16 md:py-20 bg-white">
+      <Grid>
+        <Column lg={16} md={8} sm={4}>
+          <div className="text-center mb-16">
+            <h2 className="cds--type-display-02 carbon-text-primary mb-4">
+              Everything you need to connect
+            </h2>
+            <p className="cds--type-expressive-heading-02 carbon-text-secondary max-w-2xl mx-auto">
+              Powerful features designed to help you reach your audience effectively and efficiently.
+            </p>
+          </div>
+        </Column>
+        
+        <Column lg={16} md={8} sm={4}>
+          <Grid>
+            {features.map((feature, index) => (
+              <Column 
+                key={index} 
+                lg={5} 
+                md={4} 
+                sm={4} 
+                className="mb-8"
+              >
+                <Tile className="h-full p-6 hover:bg-gray-50 transition-colors">
+                  <feature.icon size={48} className="text-blue-600 mb-4" />
+                  <h3 className="cds--type-productive-heading-02 mb-3">
+                    {feature.title}
+                  </h3>
+                  <p className="cds--type-body-01 carbon-text-secondary">
+                    {feature.description}
+                  </p>
+                </Tile>
+              </Column>
+            ))}
+          </Grid>
+        </Column>
+      </Grid>
     </section>
   );
 };
