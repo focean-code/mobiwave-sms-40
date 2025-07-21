@@ -1,5 +1,4 @@
 import React from 'react';
-import { Grid, Column } from '@carbon/react';
 
 export const Stats = () => {
   const stats = [
@@ -26,43 +25,32 @@ export const Stats = () => {
   ];
 
   return (
-    <section className="py-16 md:py-20 bg-blue-600">
-      <Grid>
-        <Column lg={16} md={8} sm={4}>
-          <div className="text-center mb-16">
-            <h2 className="cds--type-display-02 text-white mb-4">
-              Trusted by businesses worldwide
-            </h2>
-            <p className="cds--type-expressive-heading-02 text-blue-100 max-w-2xl mx-auto">
-              Join thousands of companies using Mobiwave to power their communications.
-            </p>
-          </div>
-        </Column>
-        
-        <Column lg={16} md={8} sm={4}>
-          <Grid>
-            {stats.map((stat, index) => (
-              <Column 
-                key={index} 
-                lg={4} 
-                md={2} 
-                sm={2} 
-                className="text-center mb-8 md:mb-0"
-              >
-                <div className="cds--type-display-03 text-white mb-2">
-                  {stat.number}
-                </div>
-                <div className="cds--type-productive-heading-02 text-blue-100 mb-1">
-                  {stat.label}
-                </div>
-                <div className="cds--type-body-01 text-blue-200">
-                  {stat.description}
-                </div>
-              </Column>
-            ))}
-          </Grid>
-        </Column>
-      </Grid>
+    <section className="py-12 sm:py-16 md:py-20 bg-blue-600">
+      <div className="container mx-auto px-3 sm:px-4">
+        <div className="text-center mb-10 sm:mb-16">
+          <h2 className="text-2xl xs:text-3xl sm:text-4xl font-bold text-white mb-3 sm:mb-4">
+            Trusted by businesses worldwide
+          </h2>
+          <p className="text-base sm:text-xl text-blue-100 max-w-2xl mx-auto">
+            Join thousands of companies using Mobiwave to power their communications.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 gap-5 sm:gap-8 md:grid-cols-2 lg:grid-cols-4">
+          {stats.map((stat, index) => (
+            <div key={index} className="text-center">
+              <div className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-1 sm:mb-2">
+                {stat.number}
+              </div>
+              <div className="text-base sm:text-xl font-semibold text-blue-100 mb-0.5 sm:mb-1">
+                {stat.label}
+              </div>
+              <div className="text-blue-200 text-xs sm:text-base">
+                {stat.description}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </section>
   );
 };
