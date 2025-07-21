@@ -1,5 +1,4 @@
 @import '@carbon/styles/css/styles.css';
-@import '@carbon/styles/css/themes.css';
 
 /* Existing Tailwind CSS imports for compatibility */
 @tailwind base;
