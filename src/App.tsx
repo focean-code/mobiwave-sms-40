@@ -68,7 +68,8 @@ const queryClient = new QueryClient({
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
+    <div data-carbon-theme="white">
+      <QueryClientProvider client={queryClient}>
       <Toaster position="top-right" />
       <AuthProvider>
         <BrowserRouter>
@@ -286,7 +287,8 @@ function App() {
           </Suspense>
         </BrowserRouter>
       </AuthProvider>
-    </QueryClientProvider>
+      </QueryClientProvider>
+    </div>
   );
 }
 
