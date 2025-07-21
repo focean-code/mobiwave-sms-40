@@ -1,4 +1,3 @@
-
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -157,7 +156,12 @@ export const useMspaceApi = () => {
         
         if (error) {
           console.error('Error checking balance:', error);
-          
+
+          // Handle CORS and network errors specifically
+          if (error.message && error.message.includes('Failed to send a request to the Edge Function')) {
+            throw new Error('Balance check service is currently unavailable. Please try the manual balance check in the Credits tab or contact support.');
+          }
+
           // Try to parse the error response for more details
           try {
             const errorData = JSON.parse(error.message);
