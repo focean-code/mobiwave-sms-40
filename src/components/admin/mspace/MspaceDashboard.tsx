@@ -86,6 +86,10 @@ export function MspaceDashboard() {
             <MspaceResellerClients />
           </TabsContent>
 
+          <TabsContent value="direct-clients" className="space-y-4">
+            <MspaceResellerClientsDirect />
+          </TabsContent>
+
           <TabsContent value="subusers" className="space-y-4">
             <SubUsersManager />
           </TabsContent>
