@@ -50,9 +50,11 @@ export function MspaceResellerClientsSimple() {
           error.message?.includes('credentials not found')) {
         setCredentialsError(true);
         toast.error("Please configure your Mspace API credentials first");
-      } else if (error.message?.includes('Edge function is currently unavailable')) {
+      } else if (error.message?.includes('Edge function is currently unavailable') ||
+                 error.message?.includes('Primary service unavailable')) {
+        setShowServiceNotice(true);
         toast.error("Backend service temporarily unavailable", {
-          description: "The reseller clients service is currently being updated. Please try again in a few minutes."
+          description: "Please see the notice above for alternative testing options."
         });
       } else {
         toast.error(`Failed to load reseller clients: ${error.message}`);
