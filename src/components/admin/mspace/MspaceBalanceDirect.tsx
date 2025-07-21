@@ -83,6 +83,16 @@ export function MspaceBalanceDirect() {
         </div>
       </div>
 
+      {/* Network Issue Notice */}
+      {showNetworkNotice && (
+        <NetworkIssueNotice
+          error={networkError}
+          onRetry={handleBalanceCheck}
+          onDismiss={() => setShowNetworkNotice(false)}
+          isRetrying={isLoading}
+        />
+      )}
+
       {/* Credentials Source */}
       <Card>
         <CardHeader>
