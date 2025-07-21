@@ -37,6 +37,8 @@ export function MspaceResellerClientsDirect() {
     senderId: '',
   });
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [networkError, setNetworkError] = useState<string | null>(null);
+  const [showNetworkNotice, setShowNetworkNotice] = useState(false);
 
   const directService = useMspaceDirectService({
     useStoredCredentials: !useManual,
