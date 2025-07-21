@@ -24,6 +24,8 @@ export function MspaceBalanceDirect() {
     username: '',
     senderId: '',
   });
+  const [networkError, setNetworkError] = useState<string | null>(null);
+  const [showNetworkNotice, setShowNetworkNotice] = useState(false);
 
   const directService = useMspaceDirectService({
     useStoredCredentials: !useManual,
