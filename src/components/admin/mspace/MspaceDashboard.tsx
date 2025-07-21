@@ -95,11 +95,13 @@ export function MspaceDashboard() {
           </TabsContent>
 
           <TabsContent value="testing" className="space-y-4">
+            <MspaceDirectTester />
+
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <TestTube className="h-5 w-5" />
-                  API Testing Tools
+                  Legacy API Testing Tools
                 </CardTitle>
               </CardHeader>
               <CardContent>
