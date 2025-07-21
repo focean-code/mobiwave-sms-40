@@ -44,10 +44,14 @@ export function MspaceResellerClientsSimple() {
       }
     } catch (error: any) {
       console.error('Failed to load reseller clients:', error);
-      if (error.message?.includes('credentials not configured') || 
+      if (error.message?.includes('credentials not configured') ||
           error.message?.includes('credentials not found')) {
         setCredentialsError(true);
         toast.error("Please configure your Mspace API credentials first");
+      } else if (error.message?.includes('Edge function is currently unavailable')) {
+        toast.error("Backend service temporarily unavailable", {
+          description: "The reseller clients service is currently being updated. Please try again in a few minutes."
+        });
       } else {
         toast.error(`Failed to load reseller clients: ${error.message}`);
       }
