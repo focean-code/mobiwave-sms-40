@@ -39,7 +39,7 @@ export function MspaceDashboard() {
         {/* Main Dashboard */}
         <Tabs defaultValue="credits" className="space-y-6">
           <div className="overflow-x-auto">
-            <TabsList className="grid w-full grid-cols-7 min-w-[700px]">
+            <TabsList className="grid w-full grid-cols-8 min-w-[800px]">
               <TabsTrigger value="credits" className="flex items-center gap-2">
                 <CreditCard className="h-4 w-4" />
                 Credits
@@ -47,6 +47,10 @@ export function MspaceDashboard() {
               <TabsTrigger value="clients" className="flex items-center gap-2">
                 <Users className="h-4 w-4" />
                 Clients
+              </TabsTrigger>
+              <TabsTrigger value="direct-clients" className="flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                Direct API
               </TabsTrigger>
               <TabsTrigger value="subusers" className="flex items-center gap-2">
                 <Database className="h-4 w-4" />
