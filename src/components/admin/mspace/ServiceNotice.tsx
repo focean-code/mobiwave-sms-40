@@ -16,7 +16,7 @@ export function ServiceNotice({ onDismiss }: ServiceNoticeProps) {
       </AlertTitle>
       <AlertDescription className="text-amber-700 space-y-3">
         <p>
-          The reseller clients service is currently being updated. You can still test your Mspace integration using the following alternatives:
+          Mspace backend services are currently being updated. You can still test your Mspace integration using the following alternatives:
         </p>
         <div className="flex flex-col sm:flex-row gap-2 mt-3">
           <Button
