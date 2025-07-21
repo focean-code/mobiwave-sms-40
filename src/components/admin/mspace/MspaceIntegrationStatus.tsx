@@ -15,6 +15,8 @@ import { useMspaceIntegration } from "@/hooks/mspace/useMspaceIntegration";
 import { ServiceNotice } from "./ServiceNotice";
 
 export function MspaceIntegrationStatus() {
+  const [showServiceNotice, setShowServiceNotice] = React.useState(false);
+
   const {
     hasCredentials,
     hasEncryptedCredentials,
