@@ -1,41 +1,48 @@
-
 import React from 'react';
-import { Button } from '@/components/ui/button';
+import { Button, Grid, Column } from '@carbon/react';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight } from '@carbon/icons-react';
 import { useAuth } from './auth/AuthProvider';
 
 export const CTA = () => {
   const { isAuthenticated } = useAuth();
 
   return (
-    <section className="py-12 sm:py-16 md:py-20 bg-gray-50">
-      <div className="container mx-auto px-3 sm:px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4 sm:mb-6">
-            Ready to get started?
-          </h2>
-          <p className="text-base sm:text-xl text-gray-600 mb-6 sm:mb-8 max-w-2xl mx-auto">
-            Join thousands of businesses already using Mobiwave to power their messaging campaigns. Start your free trial today.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-            <Button asChild size="lg" className="text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6">
-              <Link to={isAuthenticated ? "/dashboard" : "/auth"} className="flex items-center gap-2">
+    <section className="py-16 md:py-20 carbon-layer">
+      <Grid>
+        <Column lg={16} md={8} sm={4}>
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="cds--type-display-02 carbon-text-primary mb-6">
+              Ready to get started?
+            </h2>
+            <p className="cds--type-expressive-heading-02 carbon-text-secondary mb-8 max-w-2xl mx-auto">
+              Join thousands of businesses already using Mobiwave to power their messaging campaigns. Start your free trial today.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
+              <Button
+                kind="primary"
+                size="lg"
+                as={Link}
+                to={isAuthenticated ? "/dashboard" : "/auth"}
+                renderIcon={ArrowRight}
+              >
                 {isAuthenticated ? "Go to Dashboard" : "Start Free Trial"}
-                <ArrowRight className="w-5 h-5" />
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="lg" className="text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6">
-              <Link to="/contact">
+              </Button>
+              <Button
+                kind="secondary"
+                size="lg"
+                as={Link}
+                to="/contact"
+              >
                 Contact Sales
-              </Link>
-            </Button>
+              </Button>
+            </div>
+            <p className="cds--type-helper-text-01 carbon-text-secondary">
+              No credit card required • Free 14-day trial • Cancel anytime
+            </p>
           </div>
-          <p className="text-xs sm:text-sm text-gray-500 mt-3 sm:mt-4">
-            No credit card required • Free 14-day trial • Cancel anytime
-          </p>
-        </div>
-      </div>
+        </Column>
+      </Grid>
     </section>
   );
 };
