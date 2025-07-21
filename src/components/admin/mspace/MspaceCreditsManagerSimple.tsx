@@ -22,6 +22,7 @@ export function MspaceCreditsManagerSimple() {
   const [manualApiKey, setManualApiKey] = useState("");
   const [manualUsername, setManualUsername] = useState("");
   const [isTestingManual, setIsTestingManual] = useState(false);
+  const [showServiceNotice, setShowServiceNotice] = useState(false);
 
   const testManualCredentials = async () => {
     if (!manualApiKey.trim() || !manualUsername.trim()) {
