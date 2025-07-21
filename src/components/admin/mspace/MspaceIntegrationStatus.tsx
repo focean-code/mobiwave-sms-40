@@ -98,6 +98,10 @@ export function MspaceIntegrationStatus() {
 
   return (
     <div className="space-y-4">
+      {showServiceNotice && (
+        <ServiceNotice onDismiss={() => setShowServiceNotice(false)} />
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
