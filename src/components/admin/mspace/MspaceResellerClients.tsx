@@ -169,6 +169,10 @@ export function MspaceResellerClients() {
         </Button>
       </div>
 
+      {showServiceNotice && (
+        <ServiceNotice onDismiss={() => setShowServiceNotice(false)} />
+      )}
+
       {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
