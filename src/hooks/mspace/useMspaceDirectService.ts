@@ -119,13 +119,19 @@ export const useMspaceDirectService = (options: UseMspaceDirectServiceOptions = 
     },
     onSuccess: (data) => {
       toast.success(`✅ Found ${data.length} reseller clients`, {
-        description: 'Retrieved via direct API'
+        description: 'Retrieved successfully (with fallback if needed)'
       });
     },
     onError: (error: any) => {
       console.error('Reseller clients error:', error);
+
+      let description = 'Direct API call failed';
+      if (error.message.includes('Proxy request failed')) {
+        description = 'Both direct API and proxy failed';
+      }
+
       toast.error(`❌ Failed to fetch reseller clients: ${error.message}`, {
-        description: 'Direct API call'
+        description
       });
     },
   });
@@ -244,7 +250,7 @@ export const useMspaceDirectService = (options: UseMspaceDirectServiceOptions = 
     },
     onError: (error: any) => {
       console.error('Credentials test error:', error);
-      toast.error(`�� Credentials test failed: ${error.message}`, {
+      toast.error(`❌ Credentials test failed: ${error.message}`, {
         description: 'Direct API call'
       });
     },
