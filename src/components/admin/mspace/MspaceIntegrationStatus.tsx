@@ -28,6 +28,17 @@ export function MspaceIntegrationStatus() {
     getResellerClients,
   } = useMspaceIntegration();
 
+  const handleBalanceCheck = async () => {
+    try {
+      await checkBalance.mutateAsync();
+    } catch (error: any) {
+      if (error.message?.includes('service is currently unavailable') ||
+          error.message?.includes('Failed to send a request to the Edge Function')) {
+        setShowServiceNotice(true);
+      }
+    }
+  };
+
   const getCredentialsStatus = () => {
     if (credentialsLoading) {
       return {
