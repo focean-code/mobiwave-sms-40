@@ -13,6 +13,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { RefreshCw, Users, AlertCircle, CreditCard, UserPlus } from "lucide-react";
 import { useMspaceAccounts } from "@/hooks/mspace/useMspaceAccounts";
 import { ServiceNotice } from "./ServiceNotice";
+import { NetworkIssueNotice } from "./NetworkIssueNotice";
 import { toast } from "sonner";
 
 interface ResellerClient {
