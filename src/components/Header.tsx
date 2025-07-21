@@ -144,3 +144,6 @@ export const AppHeader = () => {
     />
   );
 };
+
+// Backward compatibility export
+export const Header = AppHeader;
