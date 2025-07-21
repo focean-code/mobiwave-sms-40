@@ -25,6 +25,7 @@ export function MspaceResellerClientsSimple() {
   const [clients, setClients] = useState<ResellerClient[]>([]);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [credentialsError, setCredentialsError] = useState(false);
+  const [showServiceNotice, setShowServiceNotice] = useState(false);
   
   const { 
     queryResellerClients,
