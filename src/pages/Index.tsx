@@ -1,5 +1,5 @@
 import { Hero } from "@/components/Hero";
-import { AppHeader } from "@/components/Header";
+import { Header } from "@/components/Header";
 import { Features } from "@/components/Features";
 import { Stats } from "@/components/Stats";
 import { ServicesSection } from "@/components/ServicesSection";
