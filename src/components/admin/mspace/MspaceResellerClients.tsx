@@ -183,6 +183,15 @@ export function MspaceResellerClients() {
         <ServiceNotice onDismiss={() => setShowServiceNotice(false)} />
       )}
 
+      {showNetworkNotice && (
+        <NetworkIssueNotice
+          error={networkError}
+          onRetry={loadClients}
+          onDismiss={() => setShowNetworkNotice(false)}
+          isRetrying={isLoading}
+        />
+      )}
+
       {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
