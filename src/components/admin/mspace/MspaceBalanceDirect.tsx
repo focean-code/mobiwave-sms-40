@@ -47,6 +47,24 @@ export function MspaceBalanceDirect() {
     }));
   };
 
+  const handleBalanceCheck = async () => {
+    try {
+      setNetworkError(null);
+      setShowNetworkNotice(false);
+      await checkBalance.mutateAsync();
+    } catch (error: any) {
+      console.error('Balance check failed:', error);
+
+      // Check for network/CORS errors
+      if (error.message?.includes('Failed to fetch') ||
+          error.message?.includes('CORS') ||
+          error.message?.includes('Failed to send a request to the Edge Function')) {
+        setNetworkError(error.message);
+        setShowNetworkNotice(true);
+      }
+    }
+  };
+
   const formatBalance = (balance: number | null) => {
     if (balance === null) return "Not checked";
     return balance.toLocaleString();
