@@ -65,10 +65,20 @@ export function MspaceResellerClientsDirect() {
 
   const loadClients = async () => {
     try {
+      setNetworkError(null);
+      setShowNetworkNotice(false);
       await getResellerClients.mutateAsync();
       setLastUpdated(new Date().toISOString());
     } catch (error: any) {
       console.error('Failed to load reseller clients:', error);
+
+      // Check for network/CORS errors
+      if (error.message?.includes('Failed to fetch') ||
+          error.message?.includes('CORS') ||
+          error.message?.includes('Failed to send a request to the Edge Function')) {
+        setNetworkError(error.message);
+        setShowNetworkNotice(true);
+      }
     }
   };
 
