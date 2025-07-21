@@ -35,7 +35,7 @@ const Index = () => {
           structuredData={homePageStructuredData}
         />
         
-        <AppHeader />
+        <Header />
         <AuthBanner />
         <main>
           <Hero />
