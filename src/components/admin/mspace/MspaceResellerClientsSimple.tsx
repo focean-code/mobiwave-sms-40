@@ -115,6 +115,10 @@ export function MspaceResellerClientsSimple() {
         </Button>
       </div>
 
+      {showServiceNotice && (
+        <ServiceNotice onDismiss={() => setShowServiceNotice(false)} />
+      )}
+
       {credentialsError && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
