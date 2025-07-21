@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { useMspaceDirectService } from "@/hooks/mspace/useMspaceDirectService";
 import { MspaceCredentials } from "@/services/mspaceDirectApi";
+import { NetworkIssueNotice } from "./NetworkIssueNotice";
 import { toast } from "sonner";
 
 export function MspaceResellerClientsDirect() {
