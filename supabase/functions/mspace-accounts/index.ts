@@ -199,12 +199,31 @@ async function callMspaceApi(
 }
 
 serve(async (req) => {
+  // Always handle CORS preflight requests first
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
 
   try {
-    const { operation, clientname, noOfSms } = await req.json();
+    // Parse JSON with error handling
+    let operation, clientname, noOfSms;
+    try {
+      const body = await req.json();
+      operation = body.operation;
+      clientname = body.clientname;
+      noOfSms = body.noOfSms;
+    } catch (parseError) {
+      console.error("Failed to parse request body:", parseError);
+      return new Response(
+        JSON.stringify({
+          error: "Invalid JSON in request body",
+        }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
+    }
     const authHeader = req.headers.get("Authorization");
 
     if (!authHeader) {
