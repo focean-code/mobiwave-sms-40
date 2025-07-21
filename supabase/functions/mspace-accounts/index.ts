@@ -24,6 +24,10 @@ if (ENCRYPTION_KEY_B64) {
 
 // Decrypts base64(iv):base64(ciphertext) to string
 async function decryptApiKey(encrypted: string): Promise<string> {
+  if (!ENCRYPTION_KEY) {
+    throw new Error("Encryption key not available. Please configure API_KEY_ENCRYPTION_KEY_B64 environment variable.");
+  }
+
   const [ivB64, cipherB64] = encrypted.split(":");
   if (!ivB64 || !cipherB64)
     throw new Error("Invalid encrypted API key format.");
