@@ -264,6 +264,14 @@ export function MspaceCreditsManagerSimple() {
         </Card>
       </div>
 
+      {/* Direct API Balance Checker */}
+      <div className="border-t pt-6">
+        <h3 className="text-lg font-semibold mb-4">
+          Direct API Balance Checker
+        </h3>
+        <MspaceBalanceDirect />
+      </div>
+
       {/* API Testing Tools */}
       <div className="border-t pt-6">
         <h3 className="text-lg font-semibold mb-4">
