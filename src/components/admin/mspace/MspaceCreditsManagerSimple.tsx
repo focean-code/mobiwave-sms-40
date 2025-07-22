@@ -26,6 +26,7 @@ export function MspaceCreditsManagerSimple() {
     senderId: '',
   });
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [showEncryptedNotice, setShowEncryptedNotice] = useState(false);
 
   const directService = useMspaceDirectService({
     useStoredCredentials: !useManual,
