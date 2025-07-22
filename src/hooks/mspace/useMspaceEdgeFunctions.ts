@@ -65,9 +65,23 @@ export const useMspaceEdgeFunctions = () => {
       const { data, error } = await supabase.functions.invoke('mspace-accounts', {
         body: { operation: 'queryresellerclients' }
       });
-      
+
       if (error) {
         console.error('Reseller clients error:', error);
+        console.error('Error details:', {
+          message: error.message,
+          status: error.status,
+          statusCode: error.statusCode,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
+
+        // Provide more specific error messages
+        if (error.message?.includes('Failed to send a request to the Edge Function')) {
+          throw new Error(`Edge function 'mspace-accounts' is not responding. This usually means:\n1. Edge function not deployed\n2. Environment variables missing\n3. Authentication issues\n\nOriginal error: ${error.message}`);
+        }
+
         throw new Error(error.message || 'Failed to fetch reseller clients');
       }
       
