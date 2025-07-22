@@ -66,38 +66,47 @@ class MspaceDirectApiService {
   ): Promise<T> {
     const url = `${this.baseUrl}/${endpoint}`;
 
-    console.log(`Direct API call to: ${url}`, {
+    console.log(`Attempting direct API call to: ${url}`, {
       endpoint,
       payload: { ...payload, apikey: '[HIDDEN]' },
       username: credentials.username
     });
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'apikey': credentials.apiKey,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: JSON.stringify({
-        ...payload,
-        apikey: credentials.apiKey,
-      }),
-    });
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'apikey': credentials.apiKey,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          ...payload,
+          apikey: credentials.apiKey,
+        }),
+      });
 
-    const responseText = await response.text();
+      const responseText = await response.text();
 
-    console.log(`Mspace API response for ${endpoint}:`, {
-      status: response.status,
-      statusText: response.statusText,
-      body: responseText,
-    });
+      console.log(`Mspace API response for ${endpoint}:`, {
+        status: response.status,
+        statusText: response.statusText,
+        body: responseText,
+      });
 
-    if (!response.ok) {
-      throw new Error(`Mspace API error (${response.status}): ${responseText}`);
+      if (!response.ok) {
+        throw new Error(`Mspace API error (${response.status}): ${responseText}`);
+      }
+
+      return this.parseResponse<T>(responseText, endpoint);
+    } catch (error: any) {
+      // Check if this is a CORS or network error (mspace blocks direct browser calls)
+      if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+        console.log('Direct API call blocked by CORS, falling back to edge function proxy...');
+        return this.makeProxyRequest<T>(endpoint, payload, credentials);
+      }
+      throw error;
     }
-
-    return this.parseResponse<T>(responseText, endpoint);
   }
 
 
