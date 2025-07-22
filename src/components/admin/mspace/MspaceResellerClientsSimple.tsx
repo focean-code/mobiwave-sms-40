@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -10,69 +13,62 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { RefreshCw, Users, AlertCircle, CreditCard, CheckCircle } from "lucide-react";
-import { useMspaceAccounts } from "@/hooks/mspace/useMspaceAccounts";
-import { ServiceNotice } from "./ServiceNotice";
+import { 
+  RefreshCw, 
+  Users, 
+  AlertCircle, 
+  CreditCard, 
+  CheckCircle,
+  Key,
+  User
+} from "lucide-react";
+import { useMspaceDirectService } from "@/hooks/mspace/useMspaceDirectService";
+import { MspaceCredentials } from "@/services/mspaceDirectApi";
 import { toast } from "sonner";
 
-interface ResellerClient {
-  clientname: string;
-  balance: string;
-  status?: string;
-}
-
 export function MspaceResellerClientsSimple() {
-  const [clients, setClients] = useState<ResellerClient[]>([]);
+  const [useManual, setUseManual] = useState(false);
+  const [manualCredentials, setManualCredentials] = useState<MspaceCredentials>({
+    apiKey: '',
+    username: '',
+    senderId: '',
+  });
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
-  const [credentialsError, setCredentialsError] = useState(false);
-  const [showServiceNotice, setShowServiceNotice] = useState(false);
-  
-  const { 
-    queryResellerClients,
-    isLoading 
-  } = useMspaceAccounts();
+
+  const directService = useMspaceDirectService({
+    useStoredCredentials: !useManual,
+    manualCredentials: useManual ? manualCredentials : undefined,
+  });
+
+  const {
+    storedCredentials,
+    hasCredentials,
+    credentialsError,
+    getResellerClients,
+    isLoading,
+  } = directService;
+
+  const clients = getResellerClients.data || [];
+
+  const handleCredentialChange = (field: keyof MspaceCredentials, value: string) => {
+    setManualCredentials(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
 
   const loadClients = async () => {
     try {
-      setCredentialsError(false);
-      const data = await queryResellerClients();
-      setClients(data);
+      await getResellerClients.mutateAsync();
       setLastUpdated(new Date().toISOString());
-      
-      if (data.length === 0) {
-        toast.info("No reseller clients found for your Mspace account");
-      } else {
-        toast.success(`✅ Found ${data.length} reseller clients`);
-      }
     } catch (error: any) {
       console.error('Failed to load reseller clients:', error);
-      if (error.message?.includes('credentials not configured') ||
-          error.message?.includes('credentials not found')) {
-        setCredentialsError(true);
-        toast.error("Please configure your Mspace API credentials first");
-      } else if (error.message?.includes('Edge function is currently unavailable') ||
-                 error.message?.includes('Primary service unavailable')) {
-        setShowServiceNotice(true);
-        toast.error("Backend service temporarily unavailable", {
-          description: "Please see the notice above for alternative testing options."
-        });
-      } else {
-        toast.error(`Failed to load reseller clients: ${error.message}`);
-      }
     }
   };
 
-  const formatBalance = (balance: string | number | undefined | null) => {
-    if (balance === undefined || balance === null || balance === "") {
-      return "N/A";
-    }
-
-    const numBalance = parseInt(balance.toString());
-    if (isNaN(numBalance)) {
-      return balance.toString() || "N/A";
-    }
-
-    return numBalance.toLocaleString();
+  const formatBalance = (balance: string) => {
+    const numBalance = parseInt(balance);
+    return isNaN(numBalance) ? balance : numBalance.toLocaleString();
   };
 
   const formatLastUpdated = (timestamp: string | null) => {
@@ -82,15 +78,17 @@ export function MspaceResellerClientsSimple() {
 
   const getTotalBalance = () => {
     return clients.reduce((total, client) => {
-      const balance = parseInt(client.balance) || 0;
+      const balance = parseInt(client.smsBalance || client.balance || '0') || 0;
       return total + balance;
     }, 0);
   };
 
-  // Load clients on component mount
+  // Load clients when credentials become available
   useEffect(() => {
-    loadClients();
-  }, []);
+    if (hasCredentials) {
+      loadClients();
+    }
+  }, [hasCredentials]);
 
   return (
     <div className="space-y-6">
@@ -100,12 +98,12 @@ export function MspaceResellerClientsSimple() {
             Reseller Clients
           </h2>
           <p className="text-muted-foreground">
-            View your reseller client accounts and balances
+            View your reseller client accounts and balances using direct API calls
           </p>
         </div>
         <Button
           onClick={loadClients}
-          disabled={isLoading}
+          disabled={isLoading || !hasCredentials}
           variant="outline"
         >
           <RefreshCw
@@ -115,21 +113,85 @@ export function MspaceResellerClientsSimple() {
         </Button>
       </div>
 
-      {showServiceNotice && (
-        <ServiceNotice onDismiss={() => setShowServiceNotice(false)} />
-      )}
+      {/* Credentials Source */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Key className="h-5 w-5" />
+            API Credentials
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Tabs value={useManual ? "manual" : "stored"} onValueChange={(value) => setUseManual(value === "manual")}>
+            <TabsList>
+              <TabsTrigger value="stored">Use Stored Credentials</TabsTrigger>
+              <TabsTrigger value="manual">Manual Input</TabsTrigger>
+            </TabsList>
 
-      {credentialsError && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Mspace API credentials not found. Please configure your credentials in the Admin Users section under API Credentials.
-          </AlertDescription>
-        </Alert>
-      )}
+            <TabsContent value="stored" className="space-y-4">
+              {storedCredentials ? (
+                <Alert className="border-green-200 bg-green-50">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <AlertDescription className="text-green-800">
+                    ✅ Using stored credentials for: {storedCredentials.username}
+                  </AlertDescription>
+                </Alert>
+              ) : credentialsError ? (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    {credentialsError.message}
+                  </AlertDescription>
+                </Alert>
+              ) : (
+                <Alert>
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                  <AlertDescription>
+                    Loading stored credentials...
+                  </AlertDescription>
+                </Alert>
+              )}
+            </TabsContent>
 
-      {/* Quick Stats */}
-      {clients.length > 0 && (
+            <TabsContent value="manual" className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <Label htmlFor="simple-apikey">API Key</Label>
+                  <Input
+                    id="simple-apikey"
+                    type="password"
+                    value={manualCredentials.apiKey}
+                    onChange={(e) => handleCredentialChange('apiKey', e.target.value)}
+                    placeholder="Enter your mspace API key"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="simple-username">Username</Label>
+                  <Input
+                    id="simple-username"
+                    type="text"
+                    value={manualCredentials.username}
+                    onChange={(e) => handleCredentialChange('username', e.target.value)}
+                    placeholder="Enter your mspace username"
+                  />
+                </div>
+              </div>
+              
+              {manualCredentials.apiKey && manualCredentials.username && (
+                <Alert className="border-blue-200 bg-blue-50">
+                  <CheckCircle className="h-4 w-4 text-blue-600" />
+                  <AlertDescription className="text-blue-800">
+                    ✅ Manual credentials ready for: {manualCredentials.username}
+                  </AlertDescription>
+                </Alert>
+              )}
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+
+      {/* Summary Cards */}
+      {hasCredentials && clients.length > 0 && (
         <div className="grid gap-4 md:grid-cols-2">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -146,27 +208,17 @@ export function MspaceResellerClientsSimple() {
           
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Combined Balance</CardTitle>
+              <CardTitle className="text-sm font-medium">Total Balance</CardTitle>
               <CreditCard className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{formatBalance(String(getTotalBalance()))}</div>
               <p className="text-xs text-muted-foreground">
-                Total SMS credits
+                Combined SMS credits
               </p>
             </CardContent>
           </Card>
         </div>
-      )}
-
-      {/* Success Message */}
-      {clients.length > 0 && !credentialsError && (
-        <Alert className="border-green-200 bg-green-50">
-          <CheckCircle className="h-4 w-4 text-green-600" />
-          <AlertDescription className="text-green-800">
-            ✅ Successfully loaded {clients.length} reseller clients. Your Mspace integration is working correctly.
-          </AlertDescription>
-        </Alert>
       )}
 
       {/* Clients Table */}
@@ -178,51 +230,48 @@ export function MspaceResellerClientsSimple() {
           </CardTitle>
           {lastUpdated && (
             <p className="text-xs text-muted-foreground">
-              Last updated: {formatLastUpdated(lastUpdated)}
+              Direct API • {formatLastUpdated(lastUpdated)}
             </p>
           )}
         </CardHeader>
         <CardContent>
-          {clients.length === 0 && !credentialsError ? (
-            <div className="text-center py-8">
-              <Users className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">
-                {isLoading ? "Loading reseller clients..." : "No reseller clients found"}
-              </h3>
-              <p className="mt-1 text-sm text-gray-500">
-                {isLoading 
-                  ? "Please wait while we fetch your data..." 
-                  : 'Your Mspace account has no reseller clients, or they may not be configured yet.'
-                }
-              </p>
-              {!isLoading && (
-                <Button
-                  onClick={loadClients}
-                  className="mt-4"
-                  variant="outline"
-                >
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Try Again
-                </Button>
-              )}
-            </div>
-          ) : credentialsError ? (
+          {!hasCredentials ? (
             <div className="text-center py-8">
               <AlertCircle className="mx-auto h-12 w-12 text-gray-400" />
               <h3 className="mt-2 text-sm font-medium text-gray-900">
                 Credentials Required
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                Configure your Mspace API credentials to view reseller clients.
+                Configure your credentials above to load reseller clients.
+              </p>
+            </div>
+          ) : clients.length === 0 && !isLoading ? (
+            <div className="text-center py-8">
+              <Users className="mx-auto h-12 w-12 text-gray-400" />
+              <h3 className="mt-2 text-sm font-medium text-gray-900">
+                No reseller clients found
+              </h3>
+              <p className="mt-1 text-sm text-gray-500">
+                Your Mspace account has no reseller clients, or they may not be configured yet.
               </p>
               <Button
                 onClick={loadClients}
-                disabled={isLoading}
                 className="mt-4"
+                variant="outline"
               >
-                <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
-                Retry
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Try Again
               </Button>
+            </div>
+          ) : isLoading ? (
+            <div className="text-center py-8">
+              <RefreshCw className="mx-auto h-12 w-12 text-gray-400 animate-spin" />
+              <h3 className="mt-2 text-sm font-medium text-gray-900">
+                Loading reseller clients...
+              </h3>
+              <p className="mt-1 text-sm text-gray-500">
+                Making direct API call to Mspace
+              </p>
             </div>
           ) : (
             <Table>
@@ -235,16 +284,14 @@ export function MspaceResellerClientsSimple() {
               </TableHeader>
               <TableBody>
                 {clients.map((client, index) => (
-                  <TableRow key={client.clientname || index}>
+                  <TableRow key={index}>
                     <TableCell className="font-medium">
-                      {client.clientname}
+                      {client.clientUserName || client.clientname}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <CreditCard className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-mono">
-                          {formatBalance(client.balance)} SMS
-                        </span>
+                        {formatBalance(client.smsBalance || client.balance || '0')} SMS
                       </div>
                     </TableCell>
                     <TableCell>
@@ -269,14 +316,14 @@ export function MspaceResellerClientsSimple() {
       {/* Information */}
       <Card>
         <CardHeader>
-          <CardTitle>About Reseller Clients</CardTitle>
+          <CardTitle>Direct API Integration</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           <p className="text-sm text-muted-foreground">
-            Reseller clients are sub-accounts under your main Mspace account. This simplified view shows their current SMS balances and status.
+            This component uses direct API calls to the Mspace service, bypassing Supabase Edge Functions completely.
           </p>
           <p className="text-sm text-muted-foreground">
-            Data is fetched directly from the Mspace API using your configured credentials and refreshed each time you visit this page.
+            Data is fetched directly from api.mspace.co.ke and updated in real-time. All operations work without backend dependencies.
           </p>
         </CardContent>
       </Card>
