@@ -59,6 +59,18 @@ export function MspaceCreditsManagerSimple() {
     }
   };
 
+  // Check for encrypted credentials error and show notice
+  React.useEffect(() => {
+    if (credentialsError?.message?.includes('Encrypted credentials detected')) {
+      setShowEncryptedNotice(true);
+    }
+  }, [credentialsError]);
+
+  const handleSwitchToManual = () => {
+    setUseManual(true);
+    setShowEncryptedNotice(false);
+  };
+
   const formatBalance = (balance: number | null) => {
     if (balance === null) return "Not checked";
     return balance.toLocaleString();
