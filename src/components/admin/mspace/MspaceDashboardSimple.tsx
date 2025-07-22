@@ -51,7 +51,7 @@ export function MspaceDashboardSimple() {
         </TabsContent>
 
         <TabsContent value="clients" className="space-y-4">
-          <MspaceResellerClientsSimple />
+          <MspaceResellerClientsSmart />
         </TabsContent>
 
         <TabsContent value="testing" className="space-y-4">
