@@ -43,7 +43,7 @@ export function MspaceDashboardSimple() {
           </TabsTrigger>
           <TabsTrigger value="testing" className="flex items-center gap-2">
             <TestTube className="h-4 w-4" />
-            API Testing Tools
+            Diagnostics & Testing
           </TabsTrigger>
         </TabsList>
 
