@@ -72,73 +72,35 @@ class MspaceDirectApiService {
       username: credentials.username
     });
 
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'apikey': credentials.apiKey,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({
-          ...payload,
-          apikey: credentials.apiKey,
-        }),
-      });
-
-      const responseText = await response.text();
-
-      console.log(`Mspace API response for ${endpoint}:`, {
-        status: response.status,
-        statusText: response.statusText,
-        body: responseText,
-      });
-
-      if (!response.ok) {
-        throw new Error(`Mspace API error (${response.status}): ${responseText}`);
-      }
-
-      return this.parseResponse<T>(responseText, endpoint);
-    } catch (error: any) {
-      // Check if this is a CORS or network error
-      if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
-        console.log('Direct API call blocked by CORS, trying proxy fallback...');
-        return this.makeProxyRequest<T>(endpoint, payload, credentials);
-      }
-      throw error;
-    }
-  }
-
-  private async makeProxyRequest<T>(
-    endpoint: string,
-    payload: Record<string, any>,
-    credentials: MspaceCredentials
-  ): Promise<T> {
-    console.log(`Fallback to proxy for ${endpoint}`);
-
-    // Import supabase client dynamically to avoid circular dependencies
-    const { supabase } = await import('@/integrations/supabase/client');
-
-    const { data, error } = await supabase.functions.invoke('mspace-proxy', {
-      body: {
-        endpoint: `${this.baseUrl}/${endpoint}`,
-        apiKey: credentials.apiKey,
-        username: credentials.username,
-        operation: endpoint,
-        ...payload
-      }
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'apikey': credentials.apiKey,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        ...payload,
+        apikey: credentials.apiKey,
+      }),
     });
 
-    if (error) {
-      throw new Error(`Proxy request failed: ${error.message}`);
+    const responseText = await response.text();
+
+    console.log(`Mspace API response for ${endpoint}:`, {
+      status: response.status,
+      statusText: response.statusText,
+      body: responseText,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Mspace API error (${response.status}): ${responseText}`);
     }
 
-    if (data?.error) {
-      throw new Error(data.error);
-    }
-
-    return data as T;
+    return this.parseResponse<T>(responseText, endpoint);
   }
+
+
 
   private parseResponse<T>(responseText: string, endpoint: string): T {
     try {
