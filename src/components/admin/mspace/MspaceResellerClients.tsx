@@ -30,11 +30,11 @@ export function MspaceResellerClients() {
   const [networkError, setNetworkError] = useState<string | null>(null);
   const [showNetworkNotice, setShowNetworkNotice] = useState(false);
   
-  const { 
+  const {
     queryResellerClients,
     topUpResellerClient,
-    isLoading 
-  } = useMspaceAccounts();
+    isLoading
+  } = useMspaceAccountsDirect();
 
   const loadClients = async () => {
     try {
