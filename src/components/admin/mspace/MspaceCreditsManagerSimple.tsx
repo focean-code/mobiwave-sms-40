@@ -75,7 +75,7 @@ export function MspaceCreditsManagerSimple() {
             Credits Management
           </h2>
           <p className="text-muted-foreground">
-            Check your SMS balance using direct API calls
+            Check your SMS balance via edge function proxy (with direct API fallback)
           </p>
         </div>
       </div>
@@ -103,7 +103,7 @@ export function MspaceCreditsManagerSimple() {
                 <Alert className="border-green-200 bg-green-50">
                   <CheckCircle className="h-4 w-4 text-green-600" />
                   <AlertDescription className="text-green-800">
-                    ✅ Using stored credentials for: {storedCredentials.username}
+                    �� Using stored credentials for: {storedCredentials.username}
                   </AlertDescription>
                 </Alert>
               ) : credentialsError ? (
