@@ -119,7 +119,7 @@ export const useMspaceDirectService = (options: UseMspaceDirectServiceOptions = 
     },
     onSuccess: (data) => {
       toast.success(`✅ Found ${data.length} reseller clients`, {
-        description: 'Direct API call'
+        description: 'Retrieved successfully (with fallback if needed)'
       });
     },
     onError: (error: any) => {
