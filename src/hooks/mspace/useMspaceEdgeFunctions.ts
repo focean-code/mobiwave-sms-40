@@ -29,9 +29,23 @@ export const useMspaceEdgeFunctions = () => {
       console.log('Checking balance via edge function...');
       
       const { data, error } = await supabase.functions.invoke('mspace-balance');
-      
+
       if (error) {
         console.error('Balance check error:', error);
+        console.error('Error details:', {
+          message: error.message,
+          status: error.status,
+          statusCode: error.statusCode,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
+
+        // Provide more specific error messages
+        if (error.message?.includes('Failed to send a request to the Edge Function')) {
+          throw new Error(`Edge function 'mspace-balance' is not responding. This usually means:\n1. Edge function not deployed\n2. Environment variables missing (API_KEY_ENCRYPTION_KEY_B64)\n3. Authentication issues\n\nOriginal error: ${error.message}`);
+        }
+
         throw new Error(error.message || 'Failed to check balance');
       }
       
