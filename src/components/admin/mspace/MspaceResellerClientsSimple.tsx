@@ -316,14 +316,14 @@ export function MspaceResellerClientsSimple() {
       {/* Information */}
       <Card>
         <CardHeader>
-          <CardTitle>Direct API Integration</CardTitle>
+          <CardTitle>Hybrid API Integration</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           <p className="text-sm text-muted-foreground">
-            This component uses direct API calls to the Mspace service, bypassing Supabase Edge Functions completely.
+            This component uses Supabase Edge Functions to communicate with the Mspace API, with automatic fallback to direct API calls when possible.
           </p>
           <p className="text-sm text-muted-foreground">
-            Data is fetched directly from api.mspace.co.ke and updated in real-time. All operations work without backend dependencies.
+            Edge functions handle CORS restrictions and provide reliable access to the Mspace API from browser environments.
           </p>
         </CardContent>
       </Card>
