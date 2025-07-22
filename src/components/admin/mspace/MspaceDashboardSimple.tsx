@@ -23,9 +23,9 @@ export function MspaceDashboardSimple() {
       <Alert className="border-green-200 bg-green-50">
         <CheckCircle className="h-4 w-4 text-green-600" />
         <AlertDescription className="text-green-800">
-          <strong>Manual Testing Mode:</strong> Enter your credentials directly
-          to test the mspace API. This approach bypasses browser limitations and
-          provides reliable results.
+          <strong>Hybrid Integration:</strong> This system uses edge functions as the primary method
+          to communicate with Mspace API, with automatic fallback to direct API calls when possible.
+          Edge functions handle CORS restrictions for reliable browser access.
         </AlertDescription>
       </Alert>
 
