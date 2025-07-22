@@ -100,37 +100,6 @@ class MspaceDirectApiService {
     return this.parseResponse<T>(responseText, endpoint);
   }
 
-  private async makeProxyRequest<T>(
-    endpoint: string,
-    payload: Record<string, any>,
-    credentials: MspaceCredentials
-  ): Promise<T> {
-    console.log(`Fallback to edge function proxy for ${endpoint}`);
-
-    // Import supabase client dynamically to avoid circular dependencies
-    const { supabase } = await import('@/integrations/supabase/client');
-
-    const { data, error } = await supabase.functions.invoke('mspace-proxy', {
-      body: {
-        endpoint: `${this.baseUrl}/${endpoint}`,
-        apiKey: credentials.apiKey,
-        username: credentials.username,
-        operation: endpoint,
-        ...payload
-      }
-    });
-
-    if (error) {
-      throw new Error(`Edge function proxy failed: ${error.message}`);
-    }
-
-    if (data?.error) {
-      throw new Error(data.error);
-    }
-
-    return data as T;
-  }
-
   private parseResponse<T>(responseText: string, endpoint: string): T {
     try {
       return JSON.parse(responseText) as T;
