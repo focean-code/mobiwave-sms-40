@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CreditCard, Users, TestTube, CheckCircle } from "lucide-react";
 import { MspaceCreditsManagerSmart } from "./MspaceCreditsManagerSmart";
-import { MspaceResellerClientsSimple } from "./MspaceResellerClientsSimple";
+import { MspaceResellerClientsSmart } from "./MspaceResellerClientsSmart";
 import { MspaceAPITester } from "./MspaceAPITester";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
