@@ -47,7 +47,7 @@ export function MspaceDashboardSimple() {
         </TabsList>
 
         <TabsContent value="credits" className="space-y-4">
-          <MspaceCreditsManagerSimple />
+          <MspaceCreditsManagerSmart />
         </TabsContent>
 
         <TabsContent value="clients" className="space-y-4">
