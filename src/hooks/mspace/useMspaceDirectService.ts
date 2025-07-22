@@ -86,8 +86,9 @@ export const useMspaceDirectService = (options: UseMspaceDirectServiceOptions = 
       return result;
     },
     onSuccess: (data) => {
+      const source = data.source === 'direct_api' ? 'direct API' : 'edge function proxy';
       toast.success(`✅ Balance: ${data.balance.toLocaleString()} ${data.currency}`, {
-        description: 'Direct API call'
+        description: `Retrieved via ${source}`
       });
     },
     onError: (error: any) => {
