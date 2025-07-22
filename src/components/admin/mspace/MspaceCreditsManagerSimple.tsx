@@ -9,96 +9,51 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RefreshCw, CreditCard, Key, User, CheckCircle } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ServiceNotice } from "./ServiceNotice";
+import { useMspaceDirectService } from "@/hooks/mspace/useMspaceDirectService";
+import { MspaceCredentials } from "@/services/mspaceDirectApi";
 import { MspaceBalanceDirect } from "./MspaceBalanceDirect";
 import { MspaceAPITester } from "./MspaceAPITester";
 
 export function MspaceCreditsManagerSimple() {
-  const [balance, setBalance] = useState<number | null>(null);
+  const [useManual, setUseManual] = useState(false);
+  const [manualCredentials, setManualCredentials] = useState<MspaceCredentials>({
+    apiKey: '',
+    username: '',
+    senderId: '',
+  });
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
-  const [manualApiKey, setManualApiKey] = useState("");
-  const [manualUsername, setManualUsername] = useState("");
-  const [isTestingManual, setIsTestingManual] = useState(false);
-  const [showServiceNotice, setShowServiceNotice] = useState(false);
 
-  const testManualCredentials = async () => {
-    if (!manualApiKey.trim() || !manualUsername.trim()) {
-      toast.error("Please enter both API key and username");
-      return;
-    }
+  const directService = useMspaceDirectService({
+    useStoredCredentials: !useManual,
+    manualCredentials: useManual ? manualCredentials : undefined,
+  });
 
-    setIsTestingManual(true);
+  const {
+    storedCredentials,
+    hasCredentials,
+    credentialsError,
+    checkBalance,
+    isLoading,
+  } = directService;
 
+  const balance = checkBalance.data?.balance || null;
+
+  const handleCredentialChange = (field: keyof MspaceCredentials, value: string) => {
+    setManualCredentials(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleCheckBalance = async () => {
     try {
-      console.log("Testing credentials via edge function...");
-
-      // Try the edge function with manual credentials
-      const { data, error } = await supabase.functions.invoke("mspace-proxy", {
-        body: {
-          endpoint: "https://api.mspace.co.ke/smsapi/v2/balance",
-          apiKey: manualApiKey.trim(),
-          username: manualUsername.trim(),
-          operation: "balance",
-        },
-      });
-
-      if (error) {
-        throw new Error(`Edge function error: ${error.message}`);
-      }
-
-      if (data?.error) {
-        throw new Error(data.error);
-      }
-
-      // Debug: Log the raw API response
-      console.log("Raw balance API response:", data);
-
-      // Parse balance from response
-      let balanceValue: number;
-      if (data?.result && data.raw) {
-        balanceValue = parseInt(data.result.trim());
-      } else if (data?.smsBalance !== undefined) {
-        // Use smsBalance field from API response
-        balanceValue = parseInt(data.smsBalance);
-      } else if (data?.balance !== undefined) {
-        // Fallback to balance field
-        balanceValue = parseInt(data.balance);
-      } else {
-        throw new Error(
-          "Unexpected response format - no balance or smsBalance field found",
-        );
-      }
-
-      if (isNaN(balanceValue)) {
-        throw new Error("Invalid balance value received");
-      }
-
-      setBalance(balanceValue);
+      await checkBalance.mutateAsync();
       setLastUpdated(new Date().toISOString());
-      toast.success(`✅ Live Balance: ${balanceValue.toLocaleString()} SMS`, {
-        description: "Retrieved successfully",
-      });
     } catch (error: any) {
-      console.error("Manual test failed:", error);
-
-      // Show service notice for edge function issues
-      if (error.message?.includes('service is currently unavailable') ||
-          error.message?.includes('Failed to send a request to the Edge Function')) {
-        setShowServiceNotice(true);
-        toast.error("❌ Backend service temporarily unavailable", {
-          description: "Please see the notice above for alternative testing options",
-        });
-      } else {
-        toast.error(`❌ Test failed: ${error.message}`, {
-          description: "Use the API tester tools below for external testing",
-        });
-      }
-    } finally {
-      setIsTestingManual(false);
+      console.error('Balance check failed:', error);
     }
   };
 
@@ -120,65 +75,102 @@ export function MspaceCreditsManagerSimple() {
             Credits Management
           </h2>
           <p className="text-muted-foreground">
-            Test your credentials and check SMS balance
+            Check your SMS balance using direct API calls
           </p>
         </div>
       </div>
 
-      {showServiceNotice && (
-        <ServiceNotice onDismiss={() => setShowServiceNotice(false)} />
-      )}
-
-      {/* Manual Credentials Input */}
+      {/* Credentials Configuration */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Key className="h-5 w-5" />
-            Test Your Mspace Credentials
+            API Credentials
           </CardTitle>
           <CardDescription>
-            Enter your mspace API credentials to check balance and test
-            connection
+            Configure your Mspace API credentials to check balance
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <Label htmlFor="credits-apikey" className="flex items-center gap-2">
-                <Key className="h-4 w-4" />
-                API Key
-              </Label>
-              <Input
-                id="credits-apikey"
-                type="password"
-                value={manualApiKey}
-                onChange={(e) => setManualApiKey(e.target.value)}
-                placeholder="Enter your mspace API key"
-              />
-            </div>
-            <div>
-              <Label htmlFor="username" className="flex items-center gap-2">
-                <User className="h-4 w-4" />
-                Username
-              </Label>
-              <Input
-                id="username"
-                type="text"
-                value={manualUsername}
-                onChange={(e) => setManualUsername(e.target.value)}
-                placeholder="Enter your mspace username"
-              />
-            </div>
-          </div>
+          <Tabs value={useManual ? "manual" : "stored"} onValueChange={(value) => setUseManual(value === "manual")}>
+            <TabsList>
+              <TabsTrigger value="stored">Use Stored Credentials</TabsTrigger>
+              <TabsTrigger value="manual">Manual Input</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="stored" className="space-y-4">
+              {storedCredentials ? (
+                <Alert className="border-green-200 bg-green-50">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <AlertDescription className="text-green-800">
+                    ✅ Using stored credentials for: {storedCredentials.username}
+                  </AlertDescription>
+                </Alert>
+              ) : credentialsError ? (
+                <Alert variant="destructive">
+                  <CheckCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    {credentialsError.message}
+                  </AlertDescription>
+                </Alert>
+              ) : (
+                <Alert>
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                  <AlertDescription>
+                    Loading stored credentials...
+                  </AlertDescription>
+                </Alert>
+              )}
+            </TabsContent>
+
+            <TabsContent value="manual" className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <Label htmlFor="credits-apikey" className="flex items-center gap-2">
+                    <Key className="h-4 w-4" />
+                    API Key
+                  </Label>
+                  <Input
+                    id="credits-apikey"
+                    type="password"
+                    value={manualCredentials.apiKey}
+                    onChange={(e) => handleCredentialChange('apiKey', e.target.value)}
+                    placeholder="Enter your mspace API key"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="username" className="flex items-center gap-2">
+                    <User className="h-4 w-4" />
+                    Username
+                  </Label>
+                  <Input
+                    id="username"
+                    type="text"
+                    value={manualCredentials.username}
+                    onChange={(e) => handleCredentialChange('username', e.target.value)}
+                    placeholder="Enter your mspace username"
+                  />
+                </div>
+              </div>
+              
+              {manualCredentials.apiKey && manualCredentials.username && (
+                <Alert className="border-blue-200 bg-blue-50">
+                  <CheckCircle className="h-4 w-4 text-blue-600" />
+                  <AlertDescription className="text-blue-800">
+                    ✅ Manual credentials ready for: {manualCredentials.username}
+                  </AlertDescription>
+                </Alert>
+              )}
+            </TabsContent>
+          </Tabs>
+
           <Button
-            onClick={testManualCredentials}
-            disabled={
-              isTestingManual || !manualApiKey.trim() || !manualUsername.trim()
-            }
+            onClick={handleCheckBalance}
+            disabled={isLoading || !hasCredentials}
             className="w-full"
             size="lg"
           >
-            {isTestingManual ? (
+            {isLoading ? (
               <>
                 <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                 Checking Balance...
@@ -195,7 +187,7 @@ export function MspaceCreditsManagerSimple() {
             <Alert className="mt-4 border-green-200 bg-green-50">
               <CheckCircle className="h-4 w-4 text-green-600" />
               <AlertDescription className="text-green-800">
-                ✅ Test successful! Your credentials are working correctly.
+                ✅ Balance check successful! Your credentials are working correctly.
               </AlertDescription>
             </Alert>
           )}
@@ -279,6 +271,21 @@ export function MspaceCreditsManagerSimple() {
         </h3>
         <MspaceAPITester />
       </div>
+
+      {/* Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Direct API Integration</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <p className="text-sm text-muted-foreground">
+            This component uses direct API calls to the Mspace service, bypassing Supabase Edge Functions completely.
+          </p>
+          <p className="text-sm text-muted-foreground">
+            All balance checks are performed directly against api.mspace.co.ke for real-time accuracy.
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }
