@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { RefreshCw, Users, AlertCircle, CreditCard, UserPlus } from "lucide-react";
-import { useMspaceAccounts } from "@/hooks/mspace/useMspaceAccounts";
+import { useMspaceAccountsDirect } from "@/hooks/mspace/useMspaceAccountsDirect";
 import { ServiceNotice } from "./ServiceNotice";
 import { NetworkIssueNotice } from "./NetworkIssueNotice";
 import { toast } from "sonner";
