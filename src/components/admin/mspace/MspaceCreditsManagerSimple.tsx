@@ -16,6 +16,7 @@ import { useMspaceDirectService } from "@/hooks/mspace/useMspaceDirectService";
 import { MspaceCredentials } from "@/services/mspaceDirectApi";
 import { MspaceBalanceDirect } from "./MspaceBalanceDirect";
 import { MspaceAPITester } from "./MspaceAPITester";
+import { EncryptedCredentialsNotice } from "./EncryptedCredentialsNotice";
 
 export function MspaceCreditsManagerSimple() {
   const [useManual, setUseManual] = useState(false);
