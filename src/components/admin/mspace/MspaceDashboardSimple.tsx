@@ -2,7 +2,7 @@ import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CreditCard, Users, TestTube, CheckCircle } from "lucide-react";
-import { MspaceCreditsManagerSimple } from "./MspaceCreditsManagerSimple";
+import { MspaceCreditsManagerSmart } from "./MspaceCreditsManagerSmart";
 import { MspaceResellerClientsSimple } from "./MspaceResellerClientsSimple";
 import { MspaceAPITester } from "./MspaceAPITester";
 import { Alert, AlertDescription } from "@/components/ui/alert";
