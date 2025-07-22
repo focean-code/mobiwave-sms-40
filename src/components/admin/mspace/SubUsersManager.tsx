@@ -25,13 +25,13 @@ export function SubUsersManager() {
   const [topUpData, setTopUpData] = useState({ clientname: '', noOfSms: 0, type: 'subAccount' });
   const [credentialsError, setCredentialsError] = useState(false);
   
-  const { 
-    querySubAccounts, 
+  const {
+    querySubAccounts,
     queryResellerClients,
     topUpSubAccount,
     topUpResellerClient,
-    isLoading 
-  } = useMspaceAccounts();
+    isLoading
+  } = useMspaceAccountsDirect();
 
   const loadSubUsers = async () => {
     try {
