@@ -98,7 +98,7 @@ export function MspaceResellerClientsSimple() {
             Reseller Clients
           </h2>
           <p className="text-muted-foreground">
-            View your reseller client accounts and balances using direct API calls
+            View your reseller client accounts and balances via edge function proxy
           </p>
         </div>
         <Button
