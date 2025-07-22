@@ -86,23 +86,14 @@ export const useMspaceDirectService = (options: UseMspaceDirectServiceOptions = 
       return result;
     },
     onSuccess: (data) => {
-      const source = data.source === 'direct_api' ? 'direct API' : 'proxy fallback';
       toast.success(`✅ Balance: ${data.balance.toLocaleString()} ${data.currency}`, {
-        description: `Retrieved via ${source}`
+        description: 'Direct API call'
       });
     },
     onError: (error: any) => {
       console.error('Balance check error:', error);
-
-      let description = 'Direct API call failed';
-      if (error.message.includes('Proxy request failed')) {
-        description = 'Both direct API and proxy failed';
-      } else if (error.message.includes('CORS')) {
-        description = 'Trying proxy fallback...';
-      }
-
       toast.error(`❌ Balance check failed: ${error.message}`, {
-        description
+        description: 'Direct API call'
       });
     },
   });
@@ -119,19 +110,13 @@ export const useMspaceDirectService = (options: UseMspaceDirectServiceOptions = 
     },
     onSuccess: (data) => {
       toast.success(`✅ Found ${data.length} reseller clients`, {
-        description: 'Retrieved successfully (with fallback if needed)'
+        description: 'Direct API call'
       });
     },
     onError: (error: any) => {
       console.error('Reseller clients error:', error);
-
-      let description = 'Direct API call failed';
-      if (error.message.includes('Proxy request failed')) {
-        description = 'Both direct API and proxy failed';
-      }
-
       toast.error(`❌ Failed to fetch reseller clients: ${error.message}`, {
-        description
+        description: 'Direct API call'
       });
     },
   });
