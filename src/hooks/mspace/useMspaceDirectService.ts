@@ -124,8 +124,14 @@ export const useMspaceDirectService = (options: UseMspaceDirectServiceOptions = 
     },
     onError: (error: any) => {
       console.error('Reseller clients error:', error);
+
+      let description = 'Direct API call failed';
+      if (error.message.includes('Edge function proxy failed')) {
+        description = 'Both direct API and edge function proxy failed';
+      }
+
       toast.error(`❌ Failed to fetch reseller clients: ${error.message}`, {
-        description: 'Direct API call'
+        description
       });
     },
   });
