@@ -93,8 +93,16 @@ export const useMspaceDirectService = (options: UseMspaceDirectServiceOptions = 
     },
     onError: (error: any) => {
       console.error('Balance check error:', error);
+
+      let description = 'Direct API call failed';
+      if (error.message.includes('Edge function proxy failed')) {
+        description = 'Both direct API and edge function proxy failed';
+      } else if (error.message.includes('CORS')) {
+        description = 'Trying edge function fallback...';
+      }
+
       toast.error(`❌ Balance check failed: ${error.message}`, {
-        description: 'Direct API call'
+        description
       });
     },
   });
