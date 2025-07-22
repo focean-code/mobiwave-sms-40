@@ -5,6 +5,7 @@ import { CreditCard, Users, TestTube, CheckCircle } from "lucide-react";
 import { MspaceCreditsManagerSmart } from "./MspaceCreditsManagerSmart";
 import { MspaceResellerClientsSmart } from "./MspaceResellerClientsSmart";
 import { MspaceAPITester } from "./MspaceAPITester";
+import { EdgeFunctionStatus } from "./EdgeFunctionStatus";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export function MspaceDashboardSimple() {
