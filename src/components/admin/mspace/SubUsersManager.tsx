@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { useMspaceAccounts } from '@/hooks/mspace/useMspaceAccounts';
+import { useMspaceAccountsDirect } from '@/hooks/mspace/useMspaceAccountsDirect';
 import { toast } from 'sonner';
 import { SubUsersHeader } from './subusers/SubUsersHeader';
 import { SummaryCards } from './subusers/SummaryCards';
