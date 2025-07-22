@@ -103,7 +103,7 @@ export function MspaceCreditsManagerSimple() {
                 <Alert className="border-green-200 bg-green-50">
                   <CheckCircle className="h-4 w-4 text-green-600" />
                   <AlertDescription className="text-green-800">
-                    �� Using stored credentials for: {storedCredentials.username}
+                    ✅ Using stored credentials for: {storedCredentials.username}
                   </AlertDescription>
                 </Alert>
               ) : credentialsError ? (
@@ -275,14 +275,14 @@ export function MspaceCreditsManagerSimple() {
       {/* Information */}
       <Card>
         <CardHeader>
-          <CardTitle>Direct API Integration</CardTitle>
+          <CardTitle>Hybrid API Integration</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           <p className="text-sm text-muted-foreground">
-            This component uses direct API calls to the Mspace service, bypassing Supabase Edge Functions completely.
+            This component uses Supabase Edge Functions as the primary method to communicate with Mspace API, with automatic fallback to direct API calls when possible.
           </p>
           <p className="text-sm text-muted-foreground">
-            All balance checks are performed directly against api.mspace.co.ke for real-time accuracy.
+            Edge functions handle CORS restrictions and provide reliable access to the Mspace API from browser environments.
           </p>
         </CardContent>
       </Card>
