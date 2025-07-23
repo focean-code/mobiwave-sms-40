@@ -8,7 +8,9 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { RefreshCw, CreditCard, CheckCircle, AlertCircle, Zap, Database } from "lucide-react";
+import { RefreshCw, CreditCard, CheckCircle, AlertCircle, Zap, Database, Key, User } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useMspaceAutomatic } from "@/hooks/mspace/useMspaceAutomatic";
 
 export function MspaceBalanceAutomatic() {
