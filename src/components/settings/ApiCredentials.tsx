@@ -117,6 +117,9 @@ export function ApiCredentials() {
       const credentialsData: any = {
         user_id: currentUser.id,
         service_name: 'mspace',
+        api_key: credentials.api_key,
+        username: credentials.username,
+        sender_id: credentials.sender_id,
         additional_config: {
           api_key: credentials.api_key,
           username: credentials.username,
