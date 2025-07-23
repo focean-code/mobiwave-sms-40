@@ -55,18 +55,46 @@ export const useMspaceAutomatic = () => {
         return;
       }
 
-      // Check if credentials are encrypted
+      // Check if credentials are encrypted and decrypt them
       if (credentials.api_key_encrypted && !credentials.api_key) {
-        setState({
-          status: 'encrypted',
-          credentials: {
-            apiKey: '', // Will be filled by manual input
-            username: credentials.username as string || '',
-            senderId: credentials.sender_id as string || '',
-          },
-          error: null // No error - just need manual input
-        });
-        return;
+        console.log('🔓 Encrypted credentials detected, decrypting...');
+        try {
+          const { data: decryptedCreds, error: decryptError } = await supabase.functions.invoke('decrypt-credentials');
+
+          if (decryptError) {
+            throw new Error(`Decryption failed: ${decryptError.message}`);
+          }
+
+          if (!decryptedCreds || !decryptedCreds.apiKey) {
+            throw new Error('Invalid decrypted credentials');
+          }
+
+          console.log('✅ Credentials decrypted successfully');
+
+          const mspaceCredentials: MspaceCredentials = {
+            apiKey: decryptedCreds.apiKey,
+            username: decryptedCreds.username || credentials.username as string,
+            senderId: decryptedCreds.senderId || credentials.sender_id as string,
+          };
+
+          setState({
+            status: 'ready',
+            credentials: mspaceCredentials,
+            error: null
+          });
+
+          console.log('✅ Automatic credentials ready with decryption for:', mspaceCredentials.username);
+          return;
+
+        } catch (decryptError: any) {
+          console.error('Failed to decrypt credentials:', decryptError);
+          setState({
+            status: 'error',
+            credentials: null,
+            error: `Decryption failed: ${decryptError.message}`
+          });
+          return;
+        }
       }
 
       // Use plain text credentials
