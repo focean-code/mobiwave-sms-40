@@ -358,7 +358,7 @@ export function MspaceResellerClientsAutomatic() {
             🚫 <strong>No edge functions:</strong> Completely bypasses edge function issues
           </p>
           <p className="text-sm text-muted-foreground">
-            🔒 <strong>Stored credentials:</strong> Works with plain text credentials from your database
+            🔓 <strong>Auto-decryption:</strong> Automatically decrypts stored credentials for seamless operation
           </p>
         </CardContent>
       </Card>
