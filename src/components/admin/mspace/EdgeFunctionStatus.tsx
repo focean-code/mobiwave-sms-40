@@ -42,6 +42,27 @@ export function EdgeFunctionStatus() {
       const responseTime = Date.now() - startTime;
       
       if (response.error) {
+        console.error(`${functionName} error:`, response.error);
+
+        // Try to get detailed error information
+        let errorDetails = response.error.message || 'Unknown error';
+        let statusCode = 'unknown';
+
+        if (response.error.context?.status) {
+          statusCode = response.error.context.status;
+        }
+
+        if (response.error.context?.body) {
+          try {
+            const responseBody = typeof response.error.context.body === 'string'
+              ? JSON.parse(response.error.context.body)
+              : response.error.context.body;
+            errorDetails += `\n\nStatus: ${statusCode}\nResponse: ${JSON.stringify(responseBody, null, 2)}`;
+          } catch {
+            errorDetails += `\n\nStatus: ${statusCode}\nResponse: ${response.error.context.body}`;
+          }
+        }
+
         // Check for specific error types
         if (response.error.message?.includes('Failed to send a request to the Edge Function')) {
           return {
@@ -50,11 +71,18 @@ export function EdgeFunctionStatus() {
             error: 'Edge function not deployed or not responding',
             responseTime
           };
+        } else if (response.error.message?.includes('non-2xx status code')) {
+          return {
+            name: functionName,
+            status: 'error',
+            error: `HTTP ${statusCode} Error: ${errorDetails}`,
+            responseTime
+          };
         } else {
           return {
             name: functionName,
             status: 'error',
-            error: response.error.message,
+            error: errorDetails,
             responseTime
           };
         }
@@ -209,7 +237,7 @@ export function EdgeFunctionStatus() {
 
         <div className="text-xs text-muted-foreground">
           <strong>Function Purposes:</strong>
-          <br />• mspace-balance: Check SMS balance with encrypted credentials
+          <br />��� mspace-balance: Check SMS balance with encrypted credentials
           <br />• mspace-accounts: Query reseller clients and sub-users  
           <br />• mspace-proxy: Proxy for direct API calls when needed
         </div>
