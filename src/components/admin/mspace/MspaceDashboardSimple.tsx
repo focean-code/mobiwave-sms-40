@@ -59,6 +59,8 @@ export function MspaceDashboardSimple() {
         <TabsContent value="testing" className="space-y-4">
           <EdgeFunctionStatus />
 
+          <EdgeFunctionDebugger />
+
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
