@@ -30,9 +30,9 @@ export function MspaceDashboardSimple() {
       <Alert className="border-green-200 bg-green-50">
         <CheckCircle className="h-4 w-4 text-green-600" />
         <AlertDescription className="text-green-800">
-          <strong>Smart Integration:</strong> This system automatically detects your credential storage type
-          and uses the most secure method available - encrypted credentials via edge functions for production,
-          or manual input for testing. Seamless and secure API access guaranteed.
+          <strong>Automatic Integration:</strong> This system now provides automatic direct API access using your stored credentials,
+          replicating the manual mode that worked before but without needing to re-enter credentials every time.
+          No edge functions required - pure direct API calls for reliable operation.
         </AlertDescription>
       </Alert>
 
