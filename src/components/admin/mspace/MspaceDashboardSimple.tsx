@@ -7,6 +7,7 @@ import { MspaceResellerClientsSmart } from "./MspaceResellerClientsSmart";
 import { MspaceAPITester } from "./MspaceAPITester";
 import { EdgeFunctionStatus } from "./EdgeFunctionStatus";
 import { EdgeFunctionDebugger } from "./EdgeFunctionDebugger";
+import { EdgeFunctionEnvSetter } from "./EdgeFunctionEnvSetter";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export function MspaceDashboardSimple() {
