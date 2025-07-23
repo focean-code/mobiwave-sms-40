@@ -58,6 +58,7 @@ export function EdgeFunctionDebugger() {
     setResults([]);
     
     const tests = [
+      { name: 'health-check', body: undefined },
       { name: 'mspace-balance', body: undefined },
       { name: 'mspace-accounts', body: { operation: 'querysubs' } },
       { name: 'mspace-accounts', body: { operation: 'queryresellerclients' } },
