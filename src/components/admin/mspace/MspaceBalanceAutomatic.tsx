@@ -66,14 +66,8 @@ export function MspaceBalanceAutomatic() {
       case 'ready':
         return {
           icon: <CheckCircle className="h-4 w-4 text-green-500" />,
-          text: `✅ Ready with stored credentials for: ${credentials?.username}`,
+          text: `✅ Ready with credentials for: ${credentials?.username} (auto-decrypted)`,
           variant: 'default' as const
-        };
-      case 'encrypted':
-        return {
-          icon: <AlertCircle className="h-4 w-4 text-yellow-500" />,
-          text: 'Credentials are encrypted - switch to manual mode',
-          variant: 'destructive' as const
         };
       case 'missing':
         return {
