@@ -57,11 +57,27 @@ export function MspaceDashboardSimple() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="credits" className="space-y-4">
-          <MspaceCreditsManagerSmart />
+        <TabsContent value="auto-balance" className="space-y-4">
+          <MspaceBalanceAutomatic />
         </TabsContent>
 
-        <TabsContent value="clients" className="space-y-4">
+        <TabsContent value="auto-clients" className="space-y-4">
+          <MspaceResellerClientsAutomatic />
+        </TabsContent>
+
+        <TabsContent value="manual" className="space-y-6">
+          <Alert className="border-blue-200 bg-blue-50">
+            <CheckCircle className="h-4 w-4 text-blue-600" />
+            <AlertDescription className="text-blue-800">
+              <strong>Manual Mode:</strong> Smart credential detection with manual input fallback.
+              This mode replicates the previous working approach with additional flexibility.
+            </AlertDescription>
+          </Alert>
+
+          <h3 className="text-lg font-semibold">Balance Checker (Smart Mode)</h3>
+          <MspaceCreditsManagerSmart />
+
+          <h3 className="text-lg font-semibold">Reseller Clients (Smart Mode)</h3>
           <MspaceResellerClientsSmart />
         </TabsContent>
 
