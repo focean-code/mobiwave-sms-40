@@ -91,6 +91,8 @@ export function MspaceDashboardSimple() {
 
           <AuthorizationTest />
 
+          <ApiSecurityExplanation />
+
           <EdgeFunctionDebugger />
 
           <Card>
