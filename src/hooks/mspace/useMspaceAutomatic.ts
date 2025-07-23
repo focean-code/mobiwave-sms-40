@@ -59,8 +59,12 @@ export const useMspaceAutomatic = () => {
       if (credentials.api_key_encrypted && !credentials.api_key) {
         setState({
           status: 'encrypted',
-          credentials: null,
-          error: 'Credentials are encrypted - manual input required'
+          credentials: {
+            apiKey: '', // Will be filled by manual input
+            username: credentials.username as string || '',
+            senderId: credentials.sender_id as string || '',
+          },
+          error: null // No error - just need manual input
         });
         return;
       }
