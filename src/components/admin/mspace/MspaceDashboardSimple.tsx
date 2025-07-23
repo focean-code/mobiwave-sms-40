@@ -60,6 +60,8 @@ export function MspaceDashboardSimple() {
         </TabsContent>
 
         <TabsContent value="testing" className="space-y-4">
+          <EnvironmentDetector />
+
           <EdgeFunctionStatus />
 
           <EdgeFunctionEnvSetter />
