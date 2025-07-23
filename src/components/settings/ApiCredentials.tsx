@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -126,12 +125,7 @@ export function ApiCredentials() {
         is_active: true
       };
 
-      // Only add api_key_encrypted if the column exists (for backward compatibility)
-      try {
-        credentialsData.api_key_encrypted = btoa(credentials.api_key);
-      } catch (e) {
-        console.warn('Could not encode API key, storing in additional_config only');
-      }
+
 
       console.log('Attempting to save credentials for user:', currentUser.id);
 
