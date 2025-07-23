@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -121,6 +120,9 @@ export function ApiSettings() {
       const credentialsData: any = {
         user_id: currentUser.id,
         service_name: 'mspace',
+        api_key: mspaceCredentials.api_key,
+        username: mspaceCredentials.username,
+        sender_id: mspaceCredentials.sender_id,
         additional_config: {
           api_key: mspaceCredentials.api_key,
           username: mspaceCredentials.username,
@@ -128,13 +130,6 @@ export function ApiSettings() {
         },
         is_active: true
       };
-
-      // Only add api_key_encrypted if the column exists (for backward compatibility)
-      try {
-        credentialsData.api_key_encrypted = btoa(mspaceCredentials.api_key);
-      } catch (e) {
-        console.warn('Could not encode API key, storing in additional_config only');
-      }
 
       console.log('Attempting to save credentials for user:', currentUser.id);
 
