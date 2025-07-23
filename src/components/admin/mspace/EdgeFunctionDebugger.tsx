@@ -161,7 +161,7 @@ export function EdgeFunctionDebugger() {
           <div className="text-center py-4">
             <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2" />
             <p className="text-sm text-muted-foreground">
-              Running debug tests... ({results.length}/4 completed)
+              Running debug tests... ({results.length}/5 completed)
             </p>
           </div>
         )}
