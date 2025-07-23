@@ -9,6 +9,7 @@ import { EdgeFunctionStatus } from "./EdgeFunctionStatus";
 import { EdgeFunctionDebugger } from "./EdgeFunctionDebugger";
 import { EdgeFunctionEnvSetter } from "./EdgeFunctionEnvSetter";
 import { AuthorizationTest } from "./AuthorizationTest";
+import { EnvironmentDetector } from "./EnvironmentDetector";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export function MspaceDashboardSimple() {
