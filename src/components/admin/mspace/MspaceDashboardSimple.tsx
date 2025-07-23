@@ -63,6 +63,8 @@ export function MspaceDashboardSimple() {
 
           <EdgeFunctionEnvSetter />
 
+          <AuthorizationTest />
+
           <EdgeFunctionDebugger />
 
           <Card>
