@@ -144,15 +144,7 @@ export function MspaceBalanceAutomatic() {
             </Button>
           )}
 
-          {status === 'encrypted' && (
-            <Alert>
-              <AlertDescription>
-                Your credentials are encrypted for security. Use the "Manual Input" mode 
-                in other tabs to test your integration, or contact admin to set up 
-                plain text credentials for automatic mode.
-              </AlertDescription>
-            </Alert>
-          )}
+
 
           {isReady && (
             <div className="flex gap-2">
