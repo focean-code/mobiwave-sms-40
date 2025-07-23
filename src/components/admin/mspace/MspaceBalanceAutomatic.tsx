@@ -243,7 +243,7 @@ export function MspaceBalanceAutomatic() {
             🚫 <strong>No edge functions:</strong> Bypasses edge function issues completely
           </p>
           <p className="text-sm text-muted-foreground">
-            🔒 <strong>Plain text only:</strong> Works with plain text credentials. Encrypted credentials require manual input.
+            🔓 <strong>Auto-decryption:</strong> Automatically decrypts encrypted credentials server-side for seamless operation.
           </p>
         </CardContent>
       </Card>
