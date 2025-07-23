@@ -37,19 +37,23 @@ export function MspaceDashboardSimple() {
       </Alert>
 
       {/* Main Dashboard */}
-      <Tabs defaultValue="credits" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="credits" className="flex items-center gap-2">
+      <Tabs defaultValue="auto-balance" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="auto-balance" className="flex items-center gap-2">
             <CreditCard className="h-4 w-4" />
-            Check Balance
+            Auto Balance
           </TabsTrigger>
-          <TabsTrigger value="clients" className="flex items-center gap-2">
+          <TabsTrigger value="auto-clients" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
-            Reseller Clients
+            Auto Clients
+          </TabsTrigger>
+          <TabsTrigger value="manual" className="flex items-center gap-2">
+            <CheckCircle className="h-4 w-4" />
+            Manual Mode
           </TabsTrigger>
           <TabsTrigger value="testing" className="flex items-center gap-2">
             <TestTube className="h-4 w-4" />
-            Diagnostics & Testing
+            Diagnostics
           </TabsTrigger>
         </TabsList>
 
