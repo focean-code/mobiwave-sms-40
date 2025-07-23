@@ -262,5 +262,25 @@ export const useMspaceAutomatic = () => {
     topUpResellerClient,
     testCredentials,
     retryLoad: loadStoredCredentials,
+
+    // Manual credential management for encrypted mode
+    setManualCredentials: (credentials: MspaceCredentials) => {
+      setState(prev => ({
+        ...prev,
+        status: 'ready',
+        credentials,
+        error: null
+      }));
+    },
+
+    updateManualCredential: (field: keyof MspaceCredentials, value: string) => {
+      setState(prev => ({
+        ...prev,
+        credentials: prev.credentials ? {
+          ...prev.credentials,
+          [field]: value
+        } : null
+      }));
+    },
   };
 };
