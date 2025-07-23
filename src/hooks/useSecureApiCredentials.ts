@@ -68,7 +68,7 @@ export const useSecureApiCredentials = () => {
     mutationFn: async ({ id, api_key }: { id: string; api_key: string }) => {
       const { data, error } = await supabase
         .from('api_credentials')
-        .update({ api_key_encrypted: btoa(api_key) })
+        .update({ api_key: api_key })
         .eq('id', id)
         .select()
         .single();
