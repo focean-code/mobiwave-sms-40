@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CreditCard, Users, TestTube, CheckCircle } from "lucide-react";
 import { MspaceCreditsManagerSmart } from "./MspaceCreditsManagerSmart";
 import { MspaceResellerClientsSmart } from "./MspaceResellerClientsSmart";
+import { MspaceBalanceAutomatic } from "./MspaceBalanceAutomatic";
+import { MspaceResellerClientsAutomatic } from "./MspaceResellerClientsAutomatic";
 import { MspaceAPITester } from "./MspaceAPITester";
 import { EdgeFunctionStatus } from "./EdgeFunctionStatus";
 import { EdgeFunctionDebugger } from "./EdgeFunctionDebugger";
