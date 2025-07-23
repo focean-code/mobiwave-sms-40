@@ -82,21 +82,43 @@ export const useMspaceEdgeFunctions = () => {
 
       if (error) {
         console.error('Reseller clients error:', error);
-        console.error('Error details:', {
-          message: error.message,
-          status: error.status,
-          statusCode: error.statusCode,
-          details: error.details,
-          hint: error.hint,
-          code: error.code
+        console.error('Full error object:', JSON.stringify(error, null, 2));
+
+        // Try to get more details from the error
+        let errorDetails = '';
+        let statusCode = 'unknown';
+
+        if (error.context?.status) {
+          statusCode = error.context.status;
+        }
+
+        if (error.context?.body) {
+          try {
+            const responseBody = typeof error.context.body === 'string'
+              ? JSON.parse(error.context.body)
+              : error.context.body;
+            errorDetails = JSON.stringify(responseBody, null, 2);
+          } catch {
+            errorDetails = error.context.body;
+          }
+        }
+
+        console.error('Response details:', {
+          statusCode,
+          errorDetails,
+          fullContext: error.context
         });
 
-        // Provide more specific error messages
+        // Provide more specific error messages based on status code
+        if (error.message?.includes('non-2xx status code')) {
+          throw new Error(`Edge function 'mspace-accounts' returned error (${statusCode}):\n${errorDetails || error.message}\n\nThis usually indicates:\n1. Authentication issues\n2. Missing/invalid credentials\n3. Mspace API errors\n4. Missing environment variables`);
+        }
+
         if (error.message?.includes('Failed to send a request to the Edge Function')) {
           throw new Error(`Edge function 'mspace-accounts' is not responding. This usually means:\n1. Edge function not deployed\n2. Environment variables missing\n3. Authentication issues\n\nOriginal error: ${error.message}`);
         }
 
-        throw new Error(error.message || 'Failed to fetch reseller clients');
+        throw new Error(`${error.message}${errorDetails ? `\n\nResponse: ${errorDetails}` : ''}`);
       }
       
       // Handle different response formats
