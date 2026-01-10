@@ -5,21 +5,29 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
 };
 
 // Import the decryption function
 const ENCRYPTION_KEY_B64 = Deno.env.get("API_KEY_ENCRYPTION_KEY_B64") ?? "";
-if (!ENCRYPTION_KEY_B64) {
-  throw new Error(
-    "API_KEY_ENCRYPTION_KEY_B64 environment variable is required for encryption/decryption.",
-  );
+let ENCRYPTION_KEY: Uint8Array | null = null;
+
+if (ENCRYPTION_KEY_B64) {
+  try {
+    ENCRYPTION_KEY = Uint8Array.from(atob(ENCRYPTION_KEY_B64), (c) =>
+      c.charCodeAt(0),
+    );
+  } catch (error) {
+    console.error("Failed to decode encryption key:", error);
+  }
 }
-const ENCRYPTION_KEY = Uint8Array.from(atob(ENCRYPTION_KEY_B64), (c) =>
-  c.charCodeAt(0),
-);
 
 // Decrypts base64(iv):base64(ciphertext) to string
 async function decryptApiKey(encrypted: string): Promise<string> {
+  if (!ENCRYPTION_KEY) {
+    throw new Error("Encryption key not available. Please configure API_KEY_ENCRYPTION_KEY_B64 environment variable.");
+  }
+
   const [ivB64, cipherB64] = encrypted.split(":");
   if (!ivB64 || !cipherB64)
     throw new Error("Invalid encrypted API key format.");
@@ -191,12 +199,31 @@ async function callMspaceApi(
 }
 
 serve(async (req) => {
+  // Always handle CORS preflight requests first
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
 
   try {
-    const { operation, clientname, noOfSms } = await req.json();
+    // Parse JSON with error handling
+    let operation, clientname, noOfSms;
+    try {
+      const body = await req.json();
+      operation = body.operation;
+      clientname = body.clientname;
+      noOfSms = body.noOfSms;
+    } catch (parseError) {
+      console.error("Failed to parse request body:", parseError);
+      return new Response(
+        JSON.stringify({
+          error: "Invalid JSON in request body",
+        }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
+    }
     const authHeader = req.headers.get("Authorization");
 
     if (!authHeader) {

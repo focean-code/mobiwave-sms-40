@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -20,35 +19,86 @@ import {
   CreditCard, 
   CheckCircle,
   Key,
-  User
+  User,
+  Shield
 } from "lucide-react";
+import { useMspaceEdgeFunctions } from "@/hooks/mspace/useMspaceEdgeFunctions";
 import { useMspaceDirectService } from "@/hooks/mspace/useMspaceDirectService";
 import { MspaceCredentials } from "@/services/mspaceDirectApi";
-import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
-export function MspaceResellerClientsSimple() {
-  const [useManual, setUseManual] = useState(false);
+type CredentialsMode = 'detecting' | 'encrypted' | 'manual' | 'error';
+
+interface ResellerClient {
+  clientname: string;
+  balance: string;
+  status?: string;
+}
+
+export function MspaceResellerClientsSmart() {
+  const [mode, setMode] = useState<CredentialsMode>('detecting');
+  const [clients, setClients] = useState<ResellerClient[]>([]);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [manualCredentials, setManualCredentials] = useState<MspaceCredentials>({
     apiKey: '',
     username: '',
     senderId: '',
   });
-  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
+  // Edge functions hook (for encrypted credentials)
+  const edgeFunctions = useMspaceEdgeFunctions();
+  
+  // Direct service hook (for manual credentials)
   const directService = useMspaceDirectService({
-    useStoredCredentials: !useManual,
-    manualCredentials: useManual ? manualCredentials : undefined,
+    useStoredCredentials: false,
+    manualCredentials: mode === 'manual' ? manualCredentials : undefined,
   });
 
-  const {
-    storedCredentials,
-    hasCredentials,
-    credentialsError,
-    getResellerClients,
-    isLoading,
-  } = directService;
+  // Detect credential type on mount
+  useEffect(() => {
+    detectCredentialsType();
+  }, []);
 
-  const clients = getResellerClients.data || [];
+  const detectCredentialsType = async () => {
+    setMode('detecting');
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setMode('manual');
+        return;
+      }
+
+      const { data: credentials, error } = await supabase
+        .from('api_credentials')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('service_name', 'mspace')
+        .eq('is_active', true)
+        .single();
+
+      if (error || !credentials) {
+        console.log('No stored credentials found, defaulting to manual mode');
+        setMode('manual');
+        return;
+      }
+
+      // Check if credentials are encrypted
+      if (credentials.api_key_encrypted && !credentials.api_key) {
+        console.log('Encrypted credentials detected, using edge functions');
+        setMode('encrypted');
+      } else if (credentials.api_key) {
+        console.log('Plain text credentials detected, using direct API');
+        setMode('manual');
+      } else {
+        console.log('Invalid credential format, defaulting to manual mode');
+        setMode('manual');
+      }
+    } catch (error) {
+      console.error('Error detecting credential type:', error);
+      setMode('error');
+    }
+  };
 
   const handleCredentialChange = (field: keyof MspaceCredentials, value: string) => {
     setManualCredentials(prev => ({
@@ -59,12 +109,28 @@ export function MspaceResellerClientsSimple() {
 
   const loadClients = async () => {
     try {
-      await getResellerClients.mutateAsync();
+      let result;
+      if (mode === 'encrypted') {
+        result = await edgeFunctions.getResellerClients();
+      } else if (mode === 'manual') {
+        result = await directService.getResellerClients.mutateAsync();
+      } else {
+        throw new Error('Invalid mode for loading clients');
+      }
+      
+      setClients(result);
       setLastUpdated(new Date().toISOString());
     } catch (error: any) {
       console.error('Failed to load reseller clients:', error);
     }
   };
+
+  // Auto-load clients when credentials become available
+  useEffect(() => {
+    if (mode === 'encrypted') {
+      loadClients();
+    }
+  }, [mode]);
 
   const formatBalance = (balance: string) => {
     const numBalance = parseInt(balance);
@@ -78,17 +144,55 @@ export function MspaceResellerClientsSimple() {
 
   const getTotalBalance = () => {
     return clients.reduce((total, client) => {
-      const balance = parseInt(client.smsBalance || client.balance || '0') || 0;
+      const balance = parseInt(client.balance || '0') || 0;
       return total + balance;
     }, 0);
   };
 
-  // Load clients when credentials become available
-  useEffect(() => {
-    if (hasCredentials) {
-      loadClients();
-    }
-  }, [hasCredentials]);
+  const isLoading = edgeFunctions.isLoading || directService.isLoading;
+  const canLoadClients = mode === 'encrypted' || (mode === 'manual' && manualCredentials.apiKey && manualCredentials.username);
+
+  if (mode === 'detecting') {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardContent className="flex items-center justify-center py-8">
+            <div className="text-center">
+              <RefreshCw className="mx-auto h-8 w-8 animate-spin text-gray-400 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                Detecting Credential Type
+              </h3>
+              <p className="text-sm text-gray-500">
+                Checking how your Mspace credentials are stored...
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (mode === 'error') {
+    return (
+      <div className="space-y-6">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Failed to detect credential type. Please try refreshing the page or contact support.
+            <Button
+              onClick={detectCredentialsType}
+              variant="outline"
+              size="sm"
+              className="ml-2"
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Retry Detection
+            </Button>
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -98,12 +202,12 @@ export function MspaceResellerClientsSimple() {
             Reseller Clients
           </h2>
           <p className="text-muted-foreground">
-            View your reseller client accounts and balances via edge function proxy
+            View your reseller client accounts using {mode === 'encrypted' ? 'secure edge functions' : 'manual credentials'}
           </p>
         </div>
         <Button
           onClick={loadClients}
-          disabled={isLoading || !hasCredentials}
+          disabled={isLoading || !canLoadClients}
           variant="outline"
         >
           <RefreshCw
@@ -113,52 +217,36 @@ export function MspaceResellerClientsSimple() {
         </Button>
       </div>
 
-      {/* Credentials Source */}
+      {/* Credential Status */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Key className="h-5 w-5" />
+            {mode === 'encrypted' ? <Shield className="h-5 w-5" /> : <Key className="h-5 w-5" />}
             API Credentials
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Tabs value={useManual ? "manual" : "stored"} onValueChange={(value) => setUseManual(value === "manual")}>
-            <TabsList>
-              <TabsTrigger value="stored">Use Stored Credentials</TabsTrigger>
-              <TabsTrigger value="manual">Manual Input</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="stored" className="space-y-4">
-              {storedCredentials ? (
-                <Alert className="border-green-200 bg-green-50">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                  <AlertDescription className="text-green-800">
-                    ✅ Using stored credentials for: {storedCredentials.username}
-                  </AlertDescription>
-                </Alert>
-              ) : credentialsError ? (
-                <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
-                    {credentialsError.message}
-                  </AlertDescription>
-                </Alert>
-              ) : (
-                <Alert>
-                  <RefreshCw className="h-4 w-4 animate-spin" />
-                  <AlertDescription>
-                    Loading stored credentials...
-                  </AlertDescription>
-                </Alert>
-              )}
-            </TabsContent>
-
-            <TabsContent value="manual" className="space-y-4">
+          {mode === 'encrypted' ? (
+            <Alert className="border-green-200 bg-green-50">
+              <Shield className="h-4 w-4 text-green-600" />
+              <AlertDescription className="text-green-800">
+                ✅ Using encrypted credentials managed server-side for secure access.
+              </AlertDescription>
+            </Alert>
+          ) : (
+            <div className="space-y-4">
+              <Alert className="border-blue-200 bg-blue-50">
+                <Key className="h-4 w-4 text-blue-600" />
+                <AlertDescription className="text-blue-800">
+                  Manual credentials required. Enter your Mspace API credentials below.
+                </AlertDescription>
+              </Alert>
+              
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  <Label htmlFor="simple-apikey">API Key</Label>
+                  <Label htmlFor="clients-apikey">API Key</Label>
                   <Input
-                    id="simple-apikey"
+                    id="clients-apikey"
                     type="password"
                     value={manualCredentials.apiKey}
                     onChange={(e) => handleCredentialChange('apiKey', e.target.value)}
@@ -166,9 +254,9 @@ export function MspaceResellerClientsSimple() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="simple-username">Username</Label>
+                  <Label htmlFor="clients-username">Username</Label>
                   <Input
-                    id="simple-username"
+                    id="clients-username"
                     type="text"
                     value={manualCredentials.username}
                     onChange={(e) => handleCredentialChange('username', e.target.value)}
@@ -185,13 +273,13 @@ export function MspaceResellerClientsSimple() {
                   </AlertDescription>
                 </Alert>
               )}
-            </TabsContent>
-          </Tabs>
+            </div>
+          )}
         </CardContent>
       </Card>
 
       {/* Summary Cards */}
-      {hasCredentials && clients.length > 0 && (
+      {clients.length > 0 && (
         <div className="grid gap-4 md:grid-cols-2">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -230,19 +318,22 @@ export function MspaceResellerClientsSimple() {
           </CardTitle>
           {lastUpdated && (
             <p className="text-xs text-muted-foreground">
-              Direct API • {formatLastUpdated(lastUpdated)}
+              {mode === 'encrypted' ? 'Secure API' : 'Direct API'} • {formatLastUpdated(lastUpdated)}
             </p>
           )}
         </CardHeader>
         <CardContent>
-          {!hasCredentials ? (
+          {!canLoadClients ? (
             <div className="text-center py-8">
               <AlertCircle className="mx-auto h-12 w-12 text-gray-400" />
               <h3 className="mt-2 text-sm font-medium text-gray-900">
                 Credentials Required
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                Configure your credentials above to load reseller clients.
+                {mode === 'manual' 
+                  ? 'Enter your credentials above to load reseller clients.'
+                  : 'Configure your credentials to view reseller clients.'
+                }
               </p>
             </div>
           ) : clients.length === 0 && !isLoading ? (
@@ -270,7 +361,7 @@ export function MspaceResellerClientsSimple() {
                 Loading reseller clients...
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                Making direct API call to Mspace
+                {mode === 'encrypted' ? 'Fetching via secure edge function' : 'Making direct API call'}
               </p>
             </div>
           ) : (
@@ -286,12 +377,12 @@ export function MspaceResellerClientsSimple() {
                 {clients.map((client, index) => (
                   <TableRow key={index}>
                     <TableCell className="font-medium">
-                      {client.clientUserName || client.clientname}
+                      {client.clientname}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <CreditCard className="h-4 w-4 text-muted-foreground" />
-                        {formatBalance(client.smsBalance || client.balance || '0')} SMS
+                        {formatBalance(client.balance)} SMS
                       </div>
                     </TableCell>
                     <TableCell>
@@ -316,15 +407,32 @@ export function MspaceResellerClientsSimple() {
       {/* Information */}
       <Card>
         <CardHeader>
-          <CardTitle>Hybrid API Integration</CardTitle>
+          <CardTitle>
+            {mode === 'encrypted' ? 'Secure Server-Side Integration' : 'Manual Testing Mode'}
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
-          <p className="text-sm text-muted-foreground">
-            This component uses Supabase Edge Functions to communicate with the Mspace API, with automatic fallback to direct API calls when possible.
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Edge functions handle CORS restrictions and provide reliable access to the Mspace API from browser environments.
-          </p>
+          {mode === 'encrypted' ? (
+            <>
+              <p className="text-sm text-muted-foreground">
+                Your reseller client data is fetched using encrypted credentials managed server-side
+                through Supabase Edge Functions for maximum security.
+              </p>
+              <p className="text-sm text-muted-foreground">
+                All API calls are processed securely without exposing your credentials to the browser.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-sm text-muted-foreground">
+                Enter your credentials manually for testing purposes. This method uses direct API
+                calls with automatic fallback to edge function proxy if needed.
+              </p>
+              <p className="text-sm text-muted-foreground">
+                For production use, consider setting up encrypted credential storage for enhanced security.
+              </p>
+            </>
+          )}
         </CardContent>
       </Card>
     </div>

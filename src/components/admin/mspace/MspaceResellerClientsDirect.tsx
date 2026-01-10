@@ -18,15 +18,18 @@ import {
   Users, 
   AlertCircle, 
   CreditCard, 
+  UserPlus, 
   CheckCircle,
   Key,
-  User
+  User,
+  Zap
 } from "lucide-react";
 import { useMspaceDirectService } from "@/hooks/mspace/useMspaceDirectService";
 import { MspaceCredentials } from "@/services/mspaceDirectApi";
+import { NetworkIssueNotice } from "./NetworkIssueNotice";
 import { toast } from "sonner";
 
-export function MspaceResellerClientsSimple() {
+export function MspaceResellerClientsDirect() {
   const [useManual, setUseManual] = useState(false);
   const [manualCredentials, setManualCredentials] = useState<MspaceCredentials>({
     apiKey: '',
@@ -34,6 +37,8 @@ export function MspaceResellerClientsSimple() {
     senderId: '',
   });
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [networkError, setNetworkError] = useState<string | null>(null);
+  const [showNetworkNotice, setShowNetworkNotice] = useState(false);
 
   const directService = useMspaceDirectService({
     useStoredCredentials: !useManual,
@@ -45,6 +50,7 @@ export function MspaceResellerClientsSimple() {
     hasCredentials,
     credentialsError,
     getResellerClients,
+    topUpResellerClient,
     isLoading,
   } = directService;
 
@@ -59,10 +65,34 @@ export function MspaceResellerClientsSimple() {
 
   const loadClients = async () => {
     try {
+      setNetworkError(null);
+      setShowNetworkNotice(false);
       await getResellerClients.mutateAsync();
       setLastUpdated(new Date().toISOString());
     } catch (error: any) {
       console.error('Failed to load reseller clients:', error);
+
+      // Check for network/CORS errors
+      if (error.message?.includes('Failed to fetch') ||
+          error.message?.includes('CORS') ||
+          error.message?.includes('Failed to send a request to the Edge Function')) {
+        setNetworkError(error.message);
+        setShowNetworkNotice(true);
+      }
+    }
+  };
+
+  const handleTopUp = async (clientname: string, amount: number) => {
+    try {
+      await topUpResellerClient.mutateAsync({
+        clientname,
+        noOfSms: amount
+      });
+      
+      // Reload clients to show updated balances
+      await loadClients();
+    } catch (error: any) {
+      console.error('Top-up failed:', error);
     }
   };
 
@@ -95,10 +125,10 @@ export function MspaceResellerClientsSimple() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">
-            Reseller Clients
+            Reseller Clients (Direct API)
           </h2>
           <p className="text-muted-foreground">
-            View your reseller client accounts and balances via edge function proxy
+            Manage reseller clients using direct API calls
           </p>
         </div>
         <Button
@@ -112,6 +142,16 @@ export function MspaceResellerClientsSimple() {
           {isLoading ? "Loading..." : "Refresh"}
         </Button>
       </div>
+
+      {/* Network Issue Notice */}
+      {showNetworkNotice && (
+        <NetworkIssueNotice
+          error={networkError}
+          onRetry={loadClients}
+          onDismiss={() => setShowNetworkNotice(false)}
+          isRetrying={isLoading}
+        />
+      )}
 
       {/* Credentials Source */}
       <Card>
@@ -154,11 +194,11 @@ export function MspaceResellerClientsSimple() {
             </TabsContent>
 
             <TabsContent value="manual" className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-4 md:grid-cols-3">
                 <div>
-                  <Label htmlFor="simple-apikey">API Key</Label>
+                  <Label htmlFor="manual-apikey">API Key</Label>
                   <Input
-                    id="simple-apikey"
+                    id="manual-apikey"
                     type="password"
                     value={manualCredentials.apiKey}
                     onChange={(e) => handleCredentialChange('apiKey', e.target.value)}
@@ -166,13 +206,23 @@ export function MspaceResellerClientsSimple() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="simple-username">Username</Label>
+                  <Label htmlFor="manual-username">Username</Label>
                   <Input
-                    id="simple-username"
+                    id="manual-username"
                     type="text"
                     value={manualCredentials.username}
                     onChange={(e) => handleCredentialChange('username', e.target.value)}
                     placeholder="Enter your mspace username"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="manual-senderid">Sender ID (Optional)</Label>
+                  <Input
+                    id="manual-senderid"
+                    type="text"
+                    value={manualCredentials.senderId}
+                    onChange={(e) => handleCredentialChange('senderId', e.target.value)}
+                    placeholder="Optional sender ID"
                   />
                 </div>
               </div>
@@ -192,7 +242,7 @@ export function MspaceResellerClientsSimple() {
 
       {/* Summary Cards */}
       {hasCredentials && clients.length > 0 && (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Clients</CardTitle>
@@ -215,6 +265,19 @@ export function MspaceResellerClientsSimple() {
               <div className="text-2xl font-bold">{formatBalance(String(getTotalBalance()))}</div>
               <p className="text-xs text-muted-foreground">
                 Combined SMS credits
+              </p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Last Updated</CardTitle>
+              <Zap className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-sm font-bold">{formatLastUpdated(lastUpdated)}</div>
+              <p className="text-xs text-muted-foreground">
+                Direct API call
               </p>
             </CardContent>
           </Card>
@@ -280,6 +343,7 @@ export function MspaceResellerClientsSimple() {
                   <TableHead>Client Name</TableHead>
                   <TableHead>SMS Balance</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -305,6 +369,22 @@ export function MspaceResellerClientsSimple() {
                         {client.status || "Active"}
                       </span>
                     </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const amount = prompt(`Enter SMS amount to top up for ${client.clientUserName || client.clientname}:`);
+                          if (amount && !isNaN(Number(amount)) && Number(amount) > 0) {
+                            handleTopUp(client.clientUserName || client.clientname || '', Number(amount));
+                          }
+                        }}
+                        disabled={isLoading}
+                      >
+                        <UserPlus className="h-4 w-4 mr-1" />
+                        Top Up
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -313,17 +393,17 @@ export function MspaceResellerClientsSimple() {
         </CardContent>
       </Card>
 
-      {/* Information */}
+      {/* Information Card */}
       <Card>
         <CardHeader>
-          <CardTitle>Hybrid API Integration</CardTitle>
+          <CardTitle>Direct API Integration</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           <p className="text-sm text-muted-foreground">
-            This component uses Supabase Edge Functions to communicate with the Mspace API, with automatic fallback to direct API calls when possible.
+            This component uses direct API calls to the Mspace service, bypassing Supabase Edge Functions to avoid CORS issues.
           </p>
           <p className="text-sm text-muted-foreground">
-            Edge functions handle CORS restrictions and provide reliable access to the Mspace API from browser environments.
+            Data is fetched directly from api.mspace.co.ke and updated in real-time. All operations work without backend dependencies.
           </p>
         </CardContent>
       </Card>

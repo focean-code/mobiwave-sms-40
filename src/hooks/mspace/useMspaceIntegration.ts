@@ -87,6 +87,12 @@ const checkBalanceViaEdgeFunction = async (): Promise<BalanceResponse> => {
 
   if (error) {
     console.error("Edge function error:", error);
+
+    // Handle CORS and network errors specifically
+    if (error.message && error.message.includes('Failed to send a request to the Edge Function')) {
+      throw new Error('Balance check service is currently unavailable. Please try the manual balance check in the Credits tab or contact support.');
+    }
+
     throw new Error(`Balance check failed: ${error.message}`);
   }
 

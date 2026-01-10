@@ -12,8 +12,11 @@ import {
   Key,
 } from "lucide-react";
 import { useMspaceIntegration } from "@/hooks/mspace/useMspaceIntegration";
+import { ServiceNotice } from "./ServiceNotice";
 
 export function MspaceIntegrationStatus() {
+  const [showServiceNotice, setShowServiceNotice] = React.useState(false);
+
   const {
     hasCredentials,
     hasEncryptedCredentials,
@@ -24,6 +27,17 @@ export function MspaceIntegrationStatus() {
     checkBalance,
     getResellerClients,
   } = useMspaceIntegration();
+
+  const handleBalanceCheck = async () => {
+    try {
+      await checkBalance.mutateAsync();
+    } catch (error: any) {
+      if (error.message?.includes('service is currently unavailable') ||
+          error.message?.includes('Failed to send a request to the Edge Function')) {
+        setShowServiceNotice(true);
+      }
+    }
+  };
 
   const getCredentialsStatus = () => {
     if (credentialsLoading) {
@@ -84,6 +98,10 @@ export function MspaceIntegrationStatus() {
 
   return (
     <div className="space-y-4">
+      {showServiceNotice && (
+        <ServiceNotice onDismiss={() => setShowServiceNotice(false)} />
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -196,7 +214,7 @@ export function MspaceIntegrationStatus() {
           <CardContent className="space-y-2">
             <div className="flex gap-2">
               <Button
-                onClick={() => checkBalance.mutate()}
+                onClick={handleBalanceCheck}
                 disabled={checkBalance.isPending}
                 variant="outline"
                 size="sm"

@@ -179,12 +179,12 @@ testMspaceAPI();`;
 
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <Label htmlFor="apikey" className="flex items-center gap-2">
+                <Label htmlFor="tester-apikey" className="flex items-center gap-2">
                   <Key className="h-4 w-4" />
                   API Key
                 </Label>
                 <Input
-                  id="apikey"
+                  id="tester-apikey"
                   type="password"
                   value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}

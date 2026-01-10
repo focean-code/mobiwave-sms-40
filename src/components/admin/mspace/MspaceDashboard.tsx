@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import { MspaceCreditsManager } from "./MspaceCreditsManager";
 import { MspaceResellerClients } from "./MspaceResellerClients";
+import { MspaceResellerClientsDirect } from "./MspaceResellerClientsDirect";
+import { MspaceDirectTester } from "./MspaceDirectTester";
 import { MspaceAPITester } from "./MspaceAPITester";
 import { MspaceIntegrationStatus } from "./MspaceIntegrationStatus";
 import { SubUsersManager } from "./SubUsersManager";
@@ -37,7 +39,7 @@ export function MspaceDashboard() {
         {/* Main Dashboard */}
         <Tabs defaultValue="credits" className="space-y-6">
           <div className="overflow-x-auto">
-            <TabsList className="grid w-full grid-cols-7 min-w-[700px]">
+            <TabsList className="grid w-full grid-cols-8 min-w-[800px]">
               <TabsTrigger value="credits" className="flex items-center gap-2">
                 <CreditCard className="h-4 w-4" />
                 Credits
@@ -45,6 +47,10 @@ export function MspaceDashboard() {
               <TabsTrigger value="clients" className="flex items-center gap-2">
                 <Users className="h-4 w-4" />
                 Clients
+              </TabsTrigger>
+              <TabsTrigger value="direct-clients" className="flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                Direct API
               </TabsTrigger>
               <TabsTrigger value="subusers" className="flex items-center gap-2">
                 <Database className="h-4 w-4" />
@@ -80,16 +86,22 @@ export function MspaceDashboard() {
             <MspaceResellerClients />
           </TabsContent>
 
+          <TabsContent value="direct-clients" className="space-y-4">
+            <MspaceResellerClientsDirect />
+          </TabsContent>
+
           <TabsContent value="subusers" className="space-y-4">
             <SubUsersManager />
           </TabsContent>
 
           <TabsContent value="testing" className="space-y-4">
+            <MspaceDirectTester />
+
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <TestTube className="h-5 w-5" />
-                  API Testing Tools
+                  Legacy API Testing Tools
                 </CardTitle>
               </CardHeader>
               <CardContent>

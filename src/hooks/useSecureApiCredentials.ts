@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -46,7 +45,7 @@ export const useSecureApiCredentials = () => {
         .from('api_credentials')
         .upsert({
           service_name,
-          api_key_encrypted: btoa(api_key),
+          api_key: api_key,
           user_id,
           username,
           is_active: true
@@ -69,7 +68,7 @@ export const useSecureApiCredentials = () => {
     mutationFn: async ({ id, api_key }: { id: string; api_key: string }) => {
       const { data, error } = await supabase
         .from('api_credentials')
-        .update({ api_key_encrypted: btoa(api_key) })
+        .update({ api_key: api_key })
         .eq('id', id)
         .select()
         .single();
